@@ -7,15 +7,25 @@ const prisma = new PrismaClient();
 export async function POST(req) {
   try {
     const body = await req.json();
-    const { name, address, phone, employeeId, email, password, department } =
-      body;
-
+    const {
+      name,
+      address,
+      phone,
+      employeeId,
+      email,
+      password,
+      department,
+      role,
+      position,
+      salary
+    } = body;
     const existingUser = await prisma.user.findFirst({
       where: {
         OR: [{ employeeId }, { email }],
       },
     });
 
+    const salaryNumber = parseInt(salary);
     if (existingUser) {
       return NextResponse.json(
         { error: "User with this email or employee ID already exists" },
@@ -30,8 +40,11 @@ export async function POST(req) {
         phone,
         employeeId,
         email,
-        password: hashedPassword,
         department,
+        role,
+        position,
+        salary: salaryNumber,
+        password: hashedPassword,
       },
     });
 
