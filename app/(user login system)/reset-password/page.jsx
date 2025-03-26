@@ -1,7 +1,6 @@
 "use client";
-import { use, useEffect, useState } from "react";
+import {  useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useSearchParams } from "next/navigation";
 import InputField from "@/components/InputField";
 import Button from "@/components/Button";
 
@@ -11,7 +10,7 @@ export default function ResetPassword() {
   const [newPassword, setNewPassword] = useState("");
   const [status, setStatus] = useState("");
   const router = useRouter();
-  const searchParams = useSearchParams();
+
 
   useEffect(() => {
     const userData = localStorage.getItem("userData");
@@ -21,8 +20,12 @@ export default function ResetPassword() {
   }, []);
 
   useEffect(() => {
-    setEmail(searchParams.get("email"));
-  }, [searchParams.get("email")]);
+    const params = new URLSearchParams(window.location.search);
+    const emailParam = params.get("email");
+    if (emailParam) {
+      setEmail(emailParam);
+    }
+  }, []);
 
   const handleResetPassword = async (e) => {
     e.preventDefault();
