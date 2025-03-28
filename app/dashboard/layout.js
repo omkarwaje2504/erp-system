@@ -1,91 +1,308 @@
 "use client";
-import { useState } from "react";
-
+import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import {
-  FiHome,
-  FiBox,
-  FiUsers,
-  FiTrendingUp,
-  FiDollarSign,
-  FiHeadphones,
-} from "react-icons/fi";
+  ShoppingCart,
+  TrendingUp,
+  List,
+  FileText,
+  Factory,
+  PieChart,
+  Bell,
+  UserCircle2,
+  X,
+  ExternalLink,
+  Trash2,
+  Users,
+  Menu,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
 
-export default function RootLayout({ children }) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+const sidebarItems = [
+  {
+    icon: <ShoppingCart />,
+    label: "Stoick & Inventory",
+    href: "/dashboard/stock-inventory",
+  },
+  {
+    icon: <TrendingUp />,
+    label: "Sales & CRM",
+    href: "/dashboard/sales-crm",
+  },
+  {
+    icon: <Users />,
+    label: "HR",
+    href: "/dashboard/hr",
+  },
+  {
+    icon: <FileText />,
+    label: "Accounting and finance",
+    href: "/dashboard/accounting",
+  },
+  {
+    icon: <Factory />,
+    label: "Production",
+    href: "/dashboard/production",
+  },
+  {
+    icon: <PieChart />,
+    label: "Reports",
+    href: "/dashboard/reports",
+  },
+  {
+    icon: <List />,
+    label: "Business overview",
+    href: "/dashboard/business-overview",
+  },
+];
+
+export default function DashboardLayout({ children }) {
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [pathname, setPathname] = useState("");
+  const [user, setUser] = useState(null);
+  const [isMobile, setIsMobile] = useState(false);
+  const router = useRouter();
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    const pathname = window.location.pathname;
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      const parsedUserData = JSON.parse(userData);
+      setUser(parsedUserData);
+    }
+    setPathname(pathname);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("userData");
+    router.push("/");
+  };
+
+  const toggleNotifications = () => {
+    setIsNotificationOpen(!isNotificationOpen);
+  };
+
+  const toggleMobileSidebar = () => {
+    setIsMobileSidebarOpen(!isMobileSidebarOpen);
+  };
 
   return (
-    <div className="flex">
+    <div className="flex h-screen bg-gray-100 relative">
+      {/* Notification Sidebar */}
       <div
-        className={`h-screen bg-gray-900 text-white p-4 transition-all duration-300 ${
-          isSidebarOpen ? "w-[13%]" : "w-16"
-        }`}
+        className={`
+        fixed inset-y-0 right-0 w-full md:w-96 bg-white shadow-lg z-50 
+        transform transition-transform duration-300 ease-in-out
+        ${isNotificationOpen ? "translate-x-0" : "translate-x-full"}
+      `}
       >
-        <button
-          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="mb-16 ml-1 text-gray-300 hover:text-white"
-        >
-          {isSidebarOpen ? "☰ Close" : "☰"}
-        </button>
+        <div className="flex justify-between items-center p-6 border-b">
+          <h2 className="text-xl font-bold">Notifications</h2>
+          <button
+            onClick={toggleNotifications}
+            className="text-gray-600 hover:text-gray-800"
+          >
+            <X size={24} />
+          </button>
+        </div>
 
-        <nav className="flex flex-col space-y-10">
-          <a
-            href="#"
-            className={`flex items-center space-x-3 border-b border-blue-400 ${
-              isSidebarOpen ? "px-3 " : "px-1"
-            } pb-2 hover:bg-gray-800 rounded-md transition-opacity duration-300`}
-          >
-            <FiHome className="text-xl" />
-            {isSidebarOpen && <span>Dashboard</span>}
-          </a>
-          <a
-            href="#"
-            className={`flex items-center space-x-3 border-b border-blue-400 ${
-              isSidebarOpen ? "px-3 " : "px-1"
-            } pb-2 hover:bg-gray-800  rounded-md`}
-          >
-            <FiTrendingUp className="text-xl" />
-            {isSidebarOpen && <span>Sales & CRM</span>}
-          </a>
-          <a
-            href="#"
-            className={`flex items-center space-x-3 border-b border-blue-400 ${
-              isSidebarOpen ? "px-3 " : "px-1"
-            } pb-2 hover:bg-gray-800  rounded-md`}
-          >
-            <FiBox className="text-xl" />
-            {isSidebarOpen && <span>Inventory</span>}
-          </a>
-          <a
-            href="#"
-            className={`flex items-center space-x-3 border-b border-blue-400 ${
-              isSidebarOpen ? "px-3 " : "px-1"
-            } pb-2 hover:bg-gray-800  rounded-md`}
-          >
-            <FiUsers className="text-xl" />
-            {isSidebarOpen && <span>HR</span>}
-          </a>
-          <a
-            href="#"
-            className={`flex items-center space-x-3 border-b border-blue-400 ${
-              isSidebarOpen ? "px-3 " : "px-1"
-            } pb-2 hover:bg-gray-800  rounded-md`}
-          >
-            <FiDollarSign className="text-xl" />
-            {isSidebarOpen && <span>Finance</span>}
-          </a>
-          <a
-            href="#"
-            className={`flex items-center space-x-3 border-b border-blue-400 ${
-              isSidebarOpen ? " px-3" : "px-1"
-            }  pb-2 hover:bg-gray-800 rounded-md`}
-          >
-            <FiHeadphones className="text-xl" />
-            {isSidebarOpen && <span>Support</span>}
-          </a>
-        </nav>
+        <div className="divide-y">
+          <NotificationItem />
+        </div>
       </div>
 
-      <div className="flex-1 min-h-screen bg-gray-100 p-6">{children}</div>
+      {/* Mobile Sidebar Toggle */}
+      {isMobile && !isMobileSidebarOpen && !isNotificationOpen && (
+        <button
+          onClick={toggleMobileSidebar}
+          className="fixed top-4 left-4 z-50 bg-white shadow-md p-2 rounded-lg"
+        >
+          <Menu size={24} />
+        </button>
+      )}
+
+      <div className="flex w-full">
+        {/* Sidebar */}
+
+        <div
+          className={`
+            fixed md:static z-40 top-0 left-0 h-full w-64 xl:w-[16rem] lg:w-[32vw] bg-white shadow-lg 
+            transform transition-transform duration-300 ease-in-out
+            ${
+              isMobile
+                ? isMobileSidebarOpen
+                  ? "translate-x-0"
+                  : "-translate-x-full"
+                : "translate-x-0"
+            }
+          `}
+        >
+          <div className="p-6 border-b flex justify-between items-center">
+            <h2 className="text-2xl font-bold text-gray-800">
+              Clan India Lifestyle ERP
+            </h2>
+            {isMobile && (
+              <button
+                onClick={toggleMobileSidebar}
+                className="text-gray-600 hover:text-gray-800"
+              >
+                <X size={24} />
+              </button>
+            )}
+          </div>
+
+          <nav className="p-4">
+            <ul className="space-y-2">
+              {sidebarItems.map((item) => (
+                <li key={item.label}>
+                  <Link
+                    href={item.href}
+                    onClick={isMobile ? toggleMobileSidebar : undefined}
+                    className={`
+                      flex items-center space-x-3 p-3 w-full text-left rounded-lg
+                      ${
+                        pathname === item.href
+                          ? "bg-blue-50 text-blue-600"
+                          : "text-gray-600 hover:bg-gray-100"
+                      }
+                    `}
+                  >
+                    {item.icon}
+                    <span>{item.label}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </div>
+
+        {/* Main Content Area */}
+        <main className="flex-grow flex flex-col md:ml-0">
+          <header className="flex justify-end items-center p-4 px-4 md:px-10">
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={toggleNotifications}
+                className="text-gray-600 hover:text-gray-800 relative"
+              >
+                <Bell size={24} />
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full px-2 py-0.5 text-xs">
+                  2
+                </span>
+              </button>
+              <div className="relative">
+                <div
+                  className="flex items-center space-x-2 cursor-pointer"
+                  onClick={() =>
+                    setIsProfileDropdownOpen(!isProfileDropdownOpen)
+                  }
+                >
+                  <UserCircle2 size={32} className="text-gray-500" />
+                  <div className="leading-3 hidden md:block">
+                    <p className="font-semibold">{user?.name}</p>
+                    <p className="text-sm text-gray-500">{user?.role}</p>
+                  </div>
+                </div>
+
+                {/* Dropdown */}
+                {isProfileDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-50 overflow-hidden">
+                    <button
+                      className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                      onClick={() => {
+                        setIsProfileDropdownOpen(false);
+                        router.push("/dashboard/user-profile");
+                      }}
+                    >
+                      Update Profile
+                    </button>
+                    <button
+                      className="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600"
+                      onClick={handleLogout}
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </header>
+
+          <div className="flex-grow p-4 w-full md:p-6 bg-white overflow-y-auto">
+            {children}
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
+
+const NotificationItem = () => {
+  const notifications = [
+    {
+      id: 1,
+      title: "New Order",
+      description: "You have a new order #1234",
+      time: "2 mins ago",
+    },
+    {
+      id: 2,
+      title: "Inventory Alert",
+      description: "Low stock for product XYZ",
+      time: "10 mins ago",
+    },
+    {
+      id: 3,
+      title: "Sales Report",
+      description: "Monthly sales report is ready",
+      time: "1 hour ago",
+    },
+  ];
+
+  const handleDeleteNotification = (id) => {
+    console.log(`Deleted notification ${id}`);
+  };
+
+  const handleGoToNotification = (id) => {
+    console.log(`Navigating to notification ${id}`);
+  };
+
+  return (
+    <>
+      {notifications.map((notification) => (
+        <div
+          key={notification.id}
+          className="p-4 hover:bg-gray-50 flex justify-between items-center"
+        >
+          <div>
+            <h3 className="font-semibold">{notification.title}</h3>
+            <p className="text-sm text-gray-600">{notification.description}</p>
+            <p className="text-xs text-gray-500 mt-1">{notification.time}</p>
+          </div>
+          <div className="flex space-x-2">
+            <button
+              onClick={() => handleGoToNotification(notification.id)}
+              className="text-blue-500 hover:bg-blue-50 p-2 rounded-full"
+            >
+              <ExternalLink size={20} />
+            </button>
+            <button
+              onClick={() => handleDeleteNotification(notification.id)}
+              className="text-red-500 hover:bg-red-50 p-2 rounded-full"
+            >
+              <Trash2 size={20} />
+            </button>
+          </div>
+        </div>
+      ))}
+    </>
+  );
+};

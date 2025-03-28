@@ -12,6 +12,7 @@ export async function POST(req) {
       select: {
         name: true,
         phone: true,
+        address: true,
         employeeId: true,
         email: true,
         department: true,

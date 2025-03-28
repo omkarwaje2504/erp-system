@@ -1,11 +1,11 @@
 import { LuLoader } from "react-icons/lu";
 
-export default function Button({ type, label, onClick, isLoading }) {
+export default function Button({ type, label, onClick, isLoading, className }) {
   return (
     <button
       type={type}
       onClick={onClick}
-      className="w-full bg-black text-white p-2 text-lg rounded-md hover:bg-gray-800 transition disabled:opacity-50 flex items-center justify-center"
+      className={`w-full bg-black text-white p-2 text-lg rounded-md hover:bg-gray-800 transition disabled:opacity-50 flex items-center justify-center ${className}`}
       disabled={isLoading}
     >
       {isLoading ? (

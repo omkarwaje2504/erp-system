@@ -14,7 +14,7 @@ export default function Login() {
   useEffect(() => {
     const userData = localStorage.getItem("userData");
     if (userData) {
-      router.push(`/${JSON.parse(userData).department}-dashboard`);
+      router.push(`/dashboard`);
     }
   }, []);
 
@@ -37,7 +37,7 @@ export default function Login() {
     if (response.ok) {
       setIsLoading(false);
       localStorage.setItem("userData", JSON.stringify(data.user));
-      router.push(`/${data.user.department}-dashboard`);
+      router.push(`/dashboard`);
     } else {
       setIsLoading(false);
       setStatus(data.error);
