@@ -260,63 +260,71 @@ export default function DashboardLayout({ children }) {
 }
 
 const NotificationItem = () => {
-  const notifications = [
-    {
-      id: 1,
-      title: "New Order",
-      description: "You have a new order #1234",
-      time: "2 mins ago",
-    },
-    {
-      id: 2,
-      title: "Inventory Alert",
-      description: "Low stock for product XYZ",
-      time: "10 mins ago",
-    },
-    {
-      id: 3,
-      title: "Sales Report",
-      description: "Monthly sales report is ready",
-      time: "1 hour ago",
-    },
-  ];
+  const [notifications, setNotifications] = useState([]);
+  const [userId, setUserId] = useState(null);
 
-  const handleDeleteNotification = (id) => {
-    console.log(`Deleted notification ${id}`);
+  useEffect(() => {
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      const user = JSON.parse(userData);
+      setUserId(user.id);
+      setInterval(() => {
+        fetchNotifications(user.id);
+      }, 10000);
+    }
+  }, []);
+
+  const fetchNotifications = async (uid) => {
+    try {
+      const res = await fetch(`/api/notifications?userId=${uid}`);
+      const data = await res.json();
+      setNotifications(data);
+    } catch (err) {
+      console.error("Failed to fetch notifications", err);
+    }
   };
 
-  const handleGoToNotification = (id) => {
-    console.log(`Navigating to notification ${id}`);
+  const handleDeleteNotification = async (id) => {
+    try {
+      await fetch(`/api/notifications?id=${id}`, {
+        method: "DELETE",
+      });
+      setNotifications((prev) => prev.filter((n) => n.id !== id));
+    } catch (err) {
+      console.error("Delete failed", err);
+    }
   };
 
   return (
     <>
-      {notifications.map((notification) => (
-        <div
-          key={notification.id}
-          className="p-4 hover:bg-gray-50 flex justify-between items-center"
-        >
-          <div>
-            <h3 className="font-semibold">{notification.title}</h3>
-            <p className="text-sm text-gray-600">{notification.description}</p>
-            <p className="text-xs text-gray-500 mt-1">{notification.time}</p>
+      {notifications.length > 0 ? (
+        notifications.map((notification) => (
+          <div
+            key={notification.id}
+            className="p-4 hover:bg-gray-50 flex justify-between items-center"
+          >
+            <div>
+              <h3 className="font-semibold">{notification.title}</h3>
+              <p className="text-sm text-gray-600">{notification.message}</p>
+              <p className="text-xs text-gray-500 mt-1">
+                {new Date(notification.createdAt).toLocaleString()}
+              </p>
+            </div>
+            <div className="flex space-x-2">
+              <button
+                onClick={() => handleDeleteNotification(notification.id)}
+                className="text-red-500 hover:bg-red-50 p-2 rounded-full"
+              >
+                <Trash2 size={20} />
+              </button>
+            </div>
           </div>
-          <div className="flex space-x-2">
-            <button
-              onClick={() => handleGoToNotification(notification.id)}
-              className="text-blue-500 hover:bg-blue-50 p-2 rounded-full"
-            >
-              <ExternalLink size={20} />
-            </button>
-            <button
-              onClick={() => handleDeleteNotification(notification.id)}
-              className="text-red-500 hover:bg-red-50 p-2 rounded-full"
-            >
-              <Trash2 size={20} />
-            </button>
-          </div>
+        ))
+      ) : (
+        <div className="text-center text-sm text-gray-500 py-4">
+          No notifications found.
         </div>
-      ))}
+      )}
     </>
   );
 };

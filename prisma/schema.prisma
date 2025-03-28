@@ -59,19 +59,29 @@ model Product {
   b2bPrice    Float?
   b2cPrice    Float?
   stock       Int
-  imageUrl    String? // S3 or any image URL
+  imageUrl    String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
 
 model ProductionOrder {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  productId   String   // Reference to Item ID
+  productId   String 
   productName String
   warehouse   String
   quantity    Int
-  status      String   @default("Pending") // Pending | InProgress | Completed
+  status      String   @default("Pending")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
 
+model Notification {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  message     String
+  type        String  
+  isRead      Boolean  @default(false)
+  userId      String?  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

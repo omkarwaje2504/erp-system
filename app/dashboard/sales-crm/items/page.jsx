@@ -9,8 +9,12 @@ export default function ItemAndPricingManagement() {
   const [warehouse, setWarehouse] = useState("");
   const [reorderQty, setReorderQty] = useState("");
   const [products, setProducts] = useState([]);
-
+  const [userData, setUserData] = useState(null);
   useEffect(() => {
+    const userData = JSON.parse(localStorage.getItem("userData"));
+    if (userData) {
+      setUserData(userData);
+    }
     const fetchItems = async () => {
       try {
         const res = await fetch("/api/item-and-pricing", {
@@ -52,7 +56,20 @@ export default function ItemAndPricingManagement() {
 
       const data = await res.json();
 
-      if (res.ok) {
+      console.log("User Data:", userData);
+      if (res.ok && userData) {
+        // ✅ Save notification
+        await fetch("/api/notifications", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: userData.id,
+            title: "Production Order Created",
+            message: `Reorder placed for ${selectedProduct.name} (${reorderQty} units) to ${warehouse}.`,
+            type: "production",
+          }),
+        });
+
         alert("Production order submitted successfully!");
         setWarehouse("");
         setReorderQty("");
