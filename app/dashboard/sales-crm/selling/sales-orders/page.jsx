@@ -26,7 +26,6 @@ export default function SalesOrderList() {
 
   return (
     <div className="pb-6 w-full">
-      {/* Breadcrumbs */}
       <nav className="mb-4 text-gray-600">
         <ol className="flex space-x-2 text-sm">
           <li>
@@ -51,7 +50,6 @@ export default function SalesOrderList() {
         </ol>
       </nav>
 
-      {/* Header Section */}
       <div className="flex justify-between items-center mb-6 border-b pb-4">
         <h1 className="text-4xl font-bold text-gray-800">
           Selling and Customer Management
@@ -67,7 +65,6 @@ export default function SalesOrderList() {
         </button>
       </div>
 
-      {/* Sales Order Management Button */}
       <div className="mb-6">
         <button
           className="border border-blue-600 text-blue-600 px-4 py-2 rounded hover:bg-blue-600 hover:text-white transition duration-200 flex items-center gap-2"
@@ -86,7 +83,6 @@ export default function SalesOrderList() {
         <>
           {orders.length > 0 ? (
             <div className="mt-6">
-              {/* Desktop Table */}
               <div className="hidden md:block overflow-x-auto rounded-lg shadow-lg p-4 bg-white">
                 <table className="w-full">
                   <thead className="bg-gray-200">
@@ -106,8 +102,8 @@ export default function SalesOrderList() {
                         <td>{order.id.slice(-6)}</td>
                         <td>{order.customerName}</td>
                         <td>{order.product}</td>
+                        <td>₹{order.price}</td>
                         <td>{order.quantity}</td>
-                        <td>₹{order.quantity}</td>
 
                         <td>
                           <span
@@ -145,7 +141,6 @@ export default function SalesOrderList() {
                 </table>
               </div>
 
-              {/* Mobile Cards */}
               <div className="md:hidden grid grid-cols-1 gap-y-4">
                 {orders.map((order) => (
                   <div

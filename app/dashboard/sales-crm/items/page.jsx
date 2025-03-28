@@ -56,9 +56,9 @@ export default function ItemAndPricingManagement() {
 
       const data = await res.json();
 
-      console.log("User Data:", userData);
+
       if (res.ok && userData) {
-        // ✅ Save notification
+
         await fetch("/api/notifications", {
           method: "POST",
           headers: { "Content-Type": "application/json" },

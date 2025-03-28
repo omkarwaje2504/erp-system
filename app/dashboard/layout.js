@@ -11,12 +11,11 @@ import {
   Bell,
   UserCircle2,
   X,
-  ExternalLink,
-  Trash2,
   Users,
   Menu,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import NotificationPanel from "@/components/NotificationPanel";
 
 const sidebarItems = [
   {
@@ -71,6 +70,7 @@ export default function DashboardLayout({ children }) {
   const [isMobile, setIsMobile] = useState(false);
   const router = useRouter();
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const [notifications, setNotifications] = useState(0);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -96,6 +96,22 @@ export default function DashboardLayout({ children }) {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
+  useEffect(() => {
+    setInterval(() => {
+      fetchNotifications(user?.id);
+    }, 20000);
+  }, [user]);
+
+  const fetchNotifications = async (uid) => {
+    try {
+      const res = await fetch(`/api/notifications?userId=${uid}`);
+      const data = await res.json();
+      setNotifications(data.length);
+    } catch (err) {
+      console.error("Failed to fetch notifications", err);
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("userData");
     router.push("/");
@@ -110,7 +126,7 @@ export default function DashboardLayout({ children }) {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100 relative">
+    <div className="flex h-screen bg-gray-100 relative ">
       {/* Notification Sidebar */}
       <div
         className={`
@@ -130,7 +146,7 @@ export default function DashboardLayout({ children }) {
         </div>
 
         <div className="divide-y">
-          <NotificationItem />
+          <NotificationPanel />
         </div>
       </div>
 
@@ -200,7 +216,13 @@ export default function DashboardLayout({ children }) {
         </div>
 
         {/* Main Content Area */}
-        <main className="flex-grow flex flex-col md:ml-0">
+        <main
+          className="flex-grow flex flex-col md:ml-0"
+          onClick={() => {
+            isNotificationOpen ? setIsNotificationOpen(false) : "";
+            isProfileDropdownOpen ? setIsProfileDropdownOpen(false) : "";
+          }}
+        >
           <header className="flex justify-end items-center p-4 px-4 md:px-10">
             <div className="flex items-center space-x-4">
               <button
@@ -208,9 +230,13 @@ export default function DashboardLayout({ children }) {
                 className="text-gray-600 hover:text-gray-800 relative"
               >
                 <Bell size={24} />
-                <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full px-2 py-0.5 text-xs">
-                  2
-                </span>
+                {notifications > 0 ? (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full px-2 py-0.5 text-xs">
+                    {notifications}{" "}
+                  </span>
+                ) : (
+                  ""
+                )}
               </button>
               <div className="relative">
                 <div
@@ -258,73 +284,3 @@ export default function DashboardLayout({ children }) {
     </div>
   );
 }
-
-const NotificationItem = () => {
-  const [notifications, setNotifications] = useState([]);
-  const [userId, setUserId] = useState(null);
-
-  useEffect(() => {
-    const userData = localStorage.getItem("userData");
-    if (userData) {
-      const user = JSON.parse(userData);
-      setUserId(user.id);
-      setInterval(() => {
-        fetchNotifications(user.id);
-      }, 10000);
-    }
-  }, []);
-
-  const fetchNotifications = async (uid) => {
-    try {
-      const res = await fetch(`/api/notifications?userId=${uid}`);
-      const data = await res.json();
-      setNotifications(data);
-    } catch (err) {
-      console.error("Failed to fetch notifications", err);
-    }
-  };
-
-  const handleDeleteNotification = async (id) => {
-    try {
-      await fetch(`/api/notifications?id=${id}`, {
-        method: "DELETE",
-      });
-      setNotifications((prev) => prev.filter((n) => n.id !== id));
-    } catch (err) {
-      console.error("Delete failed", err);
-    }
-  };
-
-  return (
-    <>
-      {notifications.length > 0 ? (
-        notifications.map((notification) => (
-          <div
-            key={notification.id}
-            className="p-4 hover:bg-gray-50 flex justify-between items-center"
-          >
-            <div>
-              <h3 className="font-semibold">{notification.title}</h3>
-              <p className="text-sm text-gray-600">{notification.message}</p>
-              <p className="text-xs text-gray-500 mt-1">
-                {new Date(notification.createdAt).toLocaleString()}
-              </p>
-            </div>
-            <div className="flex space-x-2">
-              <button
-                onClick={() => handleDeleteNotification(notification.id)}
-                className="text-red-500 hover:bg-red-50 p-2 rounded-full"
-              >
-                <Trash2 size={20} />
-              </button>
-            </div>
-          </div>
-        ))
-      ) : (
-        <div className="text-center text-sm text-gray-500 py-4">
-          No notifications found.
-        </div>
-      )}
-    </>
-  );
-};
