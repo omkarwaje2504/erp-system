@@ -23,36 +23,43 @@ const sidebarItems = [
     icon: <ShoppingCart />,
     label: "Stoick & Inventory",
     href: "/dashboard/stock-inventory",
+    highlight: "stock-inventory",
   },
   {
     icon: <TrendingUp />,
     label: "Sales & CRM",
     href: "/dashboard/sales-crm",
+    highlight: "sales-crm",
   },
   {
     icon: <Users />,
     label: "HR",
     href: "/dashboard/hr",
+    highlight: "hr",
   },
   {
     icon: <FileText />,
     label: "Accounting and finance",
     href: "/dashboard/accounting",
+    highlight: "accounting",
   },
   {
     icon: <Factory />,
     label: "Production",
     href: "/dashboard/production",
+    highlight: "production",
   },
   {
     icon: <PieChart />,
     label: "Reports",
     href: "/dashboard/reports",
+    highlight: "reports",
   },
   {
     icon: <List />,
     label: "Business overview",
     href: "/dashboard/business-overview",
+    highlight: "business-overview",
   },
 ];
 
@@ -76,7 +83,14 @@ export default function DashboardLayout({ children }) {
       const parsedUserData = JSON.parse(userData);
       setUser(parsedUserData);
     }
-    setPathname(pathname);
+    const getPathnameArray = pathname.split("/");
+    sidebarItems.forEach((item) => {
+      const path = item.highlight;
+
+      if (getPathnameArray.includes(path)) {
+        setPathname(`/dashboard/${path}`);
+      }
+    });
     checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);

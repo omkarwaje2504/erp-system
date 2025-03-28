@@ -29,10 +29,22 @@ export default function UserProfileEdit() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
-    localStorage.setItem("userData", JSON.stringify(form));
-    alert("Profile updated successfully!");
+
+    const response = await fetch("/api/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    });
+
+    const data = await response.json();
+    if (response.ok) {
+      alert("User registered successfully!");
+      router.push("/");
+    } else {
+      alert(data.error);
+    }
   };
 
   return (

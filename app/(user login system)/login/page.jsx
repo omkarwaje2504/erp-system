@@ -46,8 +46,8 @@ export default function Login() {
 
   return (
     <div className="min-h-[100dvh] flex flex-col justify-center items-center bg-gray-100 p-3">
-      <div className="bg-white rounded-lg shadow-sm p-6 w-full">
-        <div className="w-full">
+      <div className="bg-white max-w-2xl rounded-lg shadow-sm p-6 w-full">
+        <div className="w-full max-w-2xl mx-auto">
           <img
             src="./erp-banner-login.jpg"
             alt="erp-banner-login"

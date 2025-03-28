@@ -49,3 +49,29 @@ model SalesOrder {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
+
+model Product {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  productId   String   @unique
+  category    String
+  description String?
+  b2bPrice    Float?
+  b2cPrice    Float?
+  stock       Int
+  imageUrl    String? // S3 or any image URL
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ProductionOrder {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  productId   String   // Reference to Item ID
+  productName String
+  warehouse   String
+  quantity    Int
+  status      String   @default("Pending") // Pending | InProgress | Completed
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+

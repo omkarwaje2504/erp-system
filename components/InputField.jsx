@@ -1,6 +1,6 @@
 export default function InputField({ label, type, name, value, onChange, placeholder }) {
     return (
-      <div className="mb-4">
+      <div className="mb-4 w-full">
         <label className="block text-gray-700 text-sm mb-1 capitalize">{label}</label>
         <input
           type={type}
