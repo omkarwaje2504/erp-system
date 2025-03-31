@@ -83,7 +83,7 @@ export default function AddCustomer() {
         <ol className="flex space-x-2 text-sm">
           <li>
             <button
-              onClick={() => router.push("/")}
+              onClick={() => router.push("/dashboard/sales-crm")}
               className="hover:underline flex items-center"
             >
               Home
@@ -92,10 +92,10 @@ export default function AddCustomer() {
           <li>/</li>
           <li>
             <button
-              onClick={() => router.push("/dashboard/sales-crm")}
+              onClick={() => router.push("/dashboard/sales-crm/selling")}
               className="hover:underline flex items-center"
             >
-              Dashboard
+              Selling and Customer Management
             </button>
           </li>
           <li>/</li>

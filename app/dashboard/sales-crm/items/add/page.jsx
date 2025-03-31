@@ -79,19 +79,10 @@ export default function AddProductForm() {
         <ol className="flex space-x-2 text-sm">
           <li>
             <button
-              onClick={() => router.push("/")}
-              className="hover:underline flex items-center"
-            >
-              Home
-            </button>
-          </li>
-          <li>/</li>
-          <li>
-            <button
               onClick={() => router.push("/dashboard/sales-crm")}
               className="hover:underline flex items-center"
             >
-              Sales CRM
+              Home
             </button>
           </li>
           <li>/</li>

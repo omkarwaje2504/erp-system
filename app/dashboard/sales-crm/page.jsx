@@ -25,7 +25,7 @@ export default function SalesCRMPage() {
     {
       title: "Sales report",
       imageUrl: "/sales-crm-sr.jpg",
-      link: "/dashboard/sales-crm/reports",
+      link: "/dashboard/sales-crm/sales-report",
     },
   ];
 
@@ -37,7 +37,7 @@ export default function SalesCRMPage() {
           <div
             key={feature.title}
             onClick={() => router.push(feature.link)}
-            className=" border-0.5 h-[30vh] lg:h-auto shadow-md overflow-hidden rounded-lg cursor-pointer hover:shadow-md transition relative hover:scale-105 duration-200 hover:bg-gray-100"
+            className=" border-0.5 h-[30vh] max-w-lg  lg:h-auto shadow-md overflow-hidden rounded-lg cursor-pointer hover:shadow-md transition relative hover:scale-105 duration-200 hover:bg-gray-100"
           >
             <div className="w-full overflow-hidden h-[70%]">
               <Image

@@ -31,10 +31,10 @@ model Customer {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   contact     String
-  status      String   // e.g. "Active" or "Inactive"
+  status      String // e.g. "Active" or "Inactive"
   description String?
   location    String?
-  docUrl      String?  // uploaded document (optional)
+  docUrl      String? // uploaded document (optional)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -66,7 +66,7 @@ model Product {
 
 model ProductionOrder {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  productId   String 
+  productId   String
   productName String
   warehouse   String
   quantity    Int
@@ -76,21 +76,61 @@ model ProductionOrder {
 }
 
 model Notification {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  title       String
-  message     String
-  type        String  
-  isRead      Boolean  @default(false)
-  userId      String?  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  title     String
+  message   String
+  type      String
+  isRead    Boolean  @default(false)
+  userId    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model MarketplaceOrder {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
-  platform      String   // Amazon, Flipkart, Others
-  customerName  String
-  status        String   // Pending, Dispatched, Confirmed
-  description   String
-  createdAt     DateTime @default(now())
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  platform     String // Amazon, Flipkart, Others
+  customerName String
+  status       String // Pending, Dispatched, Confirmed
+  description  String
+  createdAt    DateTime @default(now())
+}
+
+model WorkOrder {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  workOrderName  String
+  workOrderId    String   @unique
+  assignedTo     String
+  startDate      String
+  completionDate String
+  efficiency     String
+  description    String?
+  documentUrl    String?
+  status         String   @default("Pending")
+  createdAt      DateTime @default(now())
+}
+
+model Inspection {
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  batchId          String
+  inspectionStatus String
+  defectType       String
+  assignedTo       String
+  reworkStatus     String   @default("started")
+  description      String?
+  documentUrl      String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Workstation {
+  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  workstationName    String
+  assignedTo         String   // Operators & Machines
+  currentOperation   String
+  productionTime     String
+  utilization        String   // Machine Utilization %
+  description        String?
+  documentUrl        String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 }

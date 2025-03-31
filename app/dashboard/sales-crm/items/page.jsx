@@ -56,9 +56,7 @@ export default function ItemAndPricingManagement() {
 
       const data = await res.json();
 
-
       if (res.ok && userData) {
-
         await fetch("/api/notifications", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -89,19 +87,10 @@ export default function ItemAndPricingManagement() {
         <ol className="flex space-x-2 text-sm">
           <li>
             <button
-              onClick={() => router.push("/")}
-              className="hover:text-blue-600 transition-colors"
-            >
-              Home
-            </button>
-          </li>
-          <li>/</li>
-          <li>
-            <button
               onClick={() => router.push("/dashboard/sales-crm")}
               className="hover:text-blue-600 transition-colors"
             >
-              Sales CRM
+              Home
             </button>
           </li>
           <li>/</li>

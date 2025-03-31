@@ -25,23 +25,13 @@ export default function MarketplaceIntegration() {
         <ol className="flex space-x-2 text-sm">
           <li>
             <button
-              onClick={() => router.push("/")}
+              onClick={() => router.push("/dashboard/sales-crm")}
               className="hover:underline flex items-center"
             >
               Home
             </button>
           </li>
           <li>/</li>
-          <li>
-            <button
-              onClick={() => router.push("/dashboard/sales-crm")}
-              className="hover:underline flex items-center"
-            >
-              Sales CRM
-            </button>
-          </li>
-          <li>/</li>
-
           <li className="font-semibold flex items-center">Market Place</li>
         </ol>
       </nav>

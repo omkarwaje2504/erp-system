@@ -45,7 +45,7 @@ const sidebarItems = [
   {
     icon: <Factory />,
     label: "Production",
-    href: "/dashboard/production",
+    href: "/dashboard/production-and-management",
     highlight: "production",
   },
   {
