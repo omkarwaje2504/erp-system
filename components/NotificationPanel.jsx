@@ -15,13 +15,13 @@ const NotificationPanel = () => {
     }
   }, []);
 
-  useEffect(() => {
-    if (userId) {
-      setInterval(() => {
-        fetchNotifications(userId);
-      }, 20000);
-    }
-  }, [userId]);
+  // useEffect(() => {
+  //   if (userId) {
+  //     setInterval(() => {
+  //       fetchNotifications(userId);
+  //     }, 20000);
+  //   }
+  // }, [userId]);
 
   const fetchNotifications = async (uid) => {
     try {

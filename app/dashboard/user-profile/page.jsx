@@ -50,10 +50,14 @@ export default function UserProfileEdit() {
   return (
     <div className="min-h-screen flex flex-col  py-10 w-full">
       <div className="w-full lg:p-6 rounded-lg">
+        <div className="flex justify-between w-full border-b ">
+
         <h2 className="text-2xl font-semibold text-center mb-6">
           Edit Your Profile
         </h2>
-        <form onSubmit={handleSave} className="flex flex-wrap w-full space-y-6">
+        <Button type="submit" label="Save Changes"  className="h-fit" onClick={handleSave}/>
+        </div>
+        <form className="flex flex-wrap w-full space-y-6">
           {/* Info Section */}
           <div className=" w-full lg:w-1/2 p-4 shadow-md">
             <h3 className="text-lg font-semibold underline mb-3">
@@ -147,8 +151,6 @@ export default function UserProfileEdit() {
               onChange={handleChange}
             />
           </div>
-
-          <Button type="submit" label="Save Changes" />
         </form>
       </div>
     </div>

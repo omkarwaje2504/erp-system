@@ -31,10 +31,10 @@ model Customer {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   contact     String
-  status      String // e.g. "Active" or "Inactive"
+  status      String 
   description String?
   location    String?
-  docUrl      String? // uploaded document (optional)
+  docUrl      String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -45,7 +45,7 @@ model SalesOrder {
   quantity     Int
   product      String
   price        Float
-  status       String   @default("Pending") // Pending, Confirmed, Dispatched
+  status       String   @default("Pending")
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
@@ -88,9 +88,9 @@ model Notification {
 
 model MarketplaceOrder {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  platform     String // Amazon, Flipkart, Others
+  platform     String
   customerName String
-  status       String // Pending, Dispatched, Confirmed
+  status       String 
   description  String
   createdAt    DateTime @default(now())
 }
@@ -123,14 +123,115 @@ model Inspection {
 }
 
 model Workstation {
-  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
-  workstationName    String
-  assignedTo         String   // Operators & Machines
-  currentOperation   String
-  productionTime     String
-  utilization        String   // Machine Utilization %
-  description        String?
-  documentUrl        String?
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  workstationName  String
+  assignedTo       String
+  currentOperation String
+  productionTime   String
+  utilization      String 
+  description      String?
+  documentUrl      String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Invoice {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  invoiceNumber String   @unique
+  date          String
+  customerName  String
+  description   String?
+  amount        Float
+  status        String 
+  type          String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  payments Payment[] @relation("InvoiceToPayment")
+}
+
+model Payment {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  date      String
+  method    String
+  amount    Float
+  invoiceId String   @db.ObjectId
+  invoice   Invoice  @relation("InvoiceToPayment", fields: [invoiceId], references: [id])
+  refund    Refund?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Refund {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  date      String
+  method    String
+  amount    Float
+  status    String
+  paymentId String   @unique @db.ObjectId
+  payment   Payment  @relation(fields: [paymentId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
+model TaxReport {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  reportType  String
+  period      String
+  amount      Float
+  status      String
+  dueDate     String?
+  documentUrl String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model SalesTaxEntry {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  invoiceNumber String
+  date          String
+  taxType       String
+  amount        Float
+  status        String
+  createdAt     DateTime @default(now())
+}
+
+model TaxAuditTrail {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  action    String
+  user      String
+  timestamp DateTime @default(now())
+}
+
+
+model ChartOfAccount {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  type        String   // Asset, Liability, Revenue, Expense
+  balance     Float    @default(0)
+  description String?
+  status      String   @default("Active") // Active, Inactive
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model TaxCategory {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  percentage  Float
+  region      String
+  status      String   @default("Active") // Active, Inactive
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model CostCenter {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  departmentName  String
+  budgetAllocated Float
+  amountSpent     Float
+  remaining       Float
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }

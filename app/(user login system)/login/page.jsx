@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import InputField from "@/components/InputField";
 import Button from "@/components/Button";
+import Card from "@/components/Card";
 
 export default function Login() {
   const router = useRouter();
@@ -19,81 +20,101 @@ export default function Login() {
   }, []);
 
   useEffect(() => {
-    setTimeout(() => {
-      setStatus("");
-    }, 3000);
+    if (status) {
+      const timer = setTimeout(() => {
+        setStatus("");
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
   }, [status]);
 
   const handleLogin = async (e) => {
-    setIsLoading(true);
     e.preventDefault();
-    const response = await fetch("/api/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
-    const data = await response.json();
-    if (response.ok) {
+      const data = await response.json();
+      if (response.ok) {
+        localStorage.setItem("userData", JSON.stringify(data.user));
+        router.push(`/dashboard`);
+      } else {
+        setStatus(data.error);
+      }
+    } catch (error) {
+      setStatus("An error occurred. Please try again.");
+    } finally {
       setIsLoading(false);
-      localStorage.setItem("userData", JSON.stringify(data.user));
-      router.push(`/dashboard`);
-    } else {
-      setIsLoading(false);
-      setStatus(data.error);
     }
   };
 
   return (
-    <div className="min-h-[100dvh] flex flex-col justify-center items-center bg-gray-100 p-3">
-      <div className="bg-white max-w-2xl rounded-lg shadow-sm p-6 w-full">
-        <div className="w-full max-w-2xl mx-auto">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-md">
+        <div className="text-center mb-8">
           <img
-            src="./erp-banner-login.jpg"
-            alt="erp-banner-login"
-            className="w-full"
+            src="/erp-banner-login.jpg"
+            alt="ERP System"
+            className="mx-auto h-12 w-auto mb-4"
           />
+          <h2 className="text-2xl font-bold text-gray-900">Welcome Back</h2>
+          <p className="mt-2 text-sm text-gray-600">
+            Please sign in to your account
+          </p>
         </div>
 
-        <h2 className="text-center text-2xl font-semibold mt-4">
-          Login to ERP
-        </h2>
-
-        <form className="mt-6" onSubmit={handleLogin}>
+        <form onSubmit={handleLogin} className="space-y-6">
           <InputField
-            key="email"
-            label="Enter your Email"
+            label="Email Address"
             type="email"
             name="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="Eg: demo@erp.com"
+            placeholder="Enter your email"
+            required
           />
 
           <InputField
-            key="password"
-            label="Enter your Password"
+            label="Password"
             type="password"
             name="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Eg: *****"
+            placeholder="Enter your password"
+            required
           />
-          <Button type="submit" label="Login" isLoading={isLoading} />
 
-          {status && <div className="text-red-500 text-sm mt-2">{status}</div>}
+          {status && (
+            <div className="text-sm text-red-600 text-center">{status}</div>
+          )}
+
+          <Button
+            type="submit"
+            label={isLoading ? "Signing in..." : "Sign in"}
+            isLoading={isLoading}
+            className="w-full"
+          />
         </form>
-        <div className="mt-4 text-center">
-          <a href="/forgot-password" className="text-gray-500 hover:underline">
-            Forgot Password?
+
+        <div className="mt-6 text-center space-y-2">
+          <a
+            href="/forgot-password"
+            className="text-sm text-blue-600 hover:text-blue-500"
+          >
+            Forgot your password?
           </a>
+          <div className="text-sm text-gray-600">
+            Don't have an account?{" "}
+            <a href="/signup" className="text-blue-600 hover:text-blue-500">
+              Sign up
+            </a>
+          </div>
         </div>
-        <div className="mt-1 text-center">
-          <a href="/signup" className="text-blue-500 hover:underline">
-            Create an account
-          </a>
-        </div>
-      </div>
+      </Card>
     </div>
   );
 }

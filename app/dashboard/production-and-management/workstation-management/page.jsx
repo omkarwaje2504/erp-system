@@ -132,6 +132,32 @@ export default function WorkstationList() {
         </div>
       )}
 
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
+        <div className="bg-gray-200 rounded-lg p-6 text-center shadow">
+          <h3 className="text-lg font-semibold mb-1 text-gray-700">
+            Total Workstations in Use
+          </h3>
+          <p className="text-3xl font-bold text-blue-600">
+            {workstations.length}
+          </p>
+        </div>
+
+        <div className="bg-gray-200 rounded-lg p-6 text-center shadow">
+          <h3 className="text-lg font-semibold mb-1 text-gray-700">
+            Pending & Active Operations
+          </h3>
+          <p className="text-3xl font-bold text-yellow-600">
+            {
+              workstations.filter(
+                (ws) =>
+                  ws.currentOperation &&
+                  !ws.currentOperation.toLowerCase().includes("completed")
+              ).length
+            }
+          </p>
+        </div>
+      </div>
+            
       {loading ? (
         <div className="text-center py-8">Loading...</div>
       ) : (
@@ -238,32 +264,6 @@ export default function WorkstationList() {
           </div>
         </>
       )}
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
-        <div className="bg-gray-200 rounded-lg p-6 text-center shadow">
-          <h3 className="text-lg font-semibold mb-1 text-gray-700">
-            Total Workstations in Use
-          </h3>
-          <p className="text-3xl font-bold text-blue-600">
-            {workstations.length}
-          </p>
-        </div>
-
-        <div className="bg-gray-200 rounded-lg p-6 text-center shadow">
-          <h3 className="text-lg font-semibold mb-1 text-gray-700">
-            Pending & Active Operations
-          </h3>
-          <p className="text-3xl font-bold text-yellow-600">
-            {
-              workstations.filter(
-                (ws) =>
-                  ws.currentOperation &&
-                  !ws.currentOperation.toLowerCase().includes("completed")
-              ).length
-            }
-          </p>
-        </div>
-      </div>
     </div>
   );
 }
