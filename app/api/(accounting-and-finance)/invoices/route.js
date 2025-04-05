@@ -35,6 +35,7 @@ export async function POST(req) {
     if (isNaN(floatAmount)) {
       return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
     }
+    
     if (id) {
       const updated = await prisma.invoice.update({
         where: { id },
