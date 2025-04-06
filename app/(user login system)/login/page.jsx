@@ -54,12 +54,12 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md">
-        <div className="text-center mb-8">
+      <Card className="w-full max-w-xl">
+        <div className="text-center mb-8 w-full">
           <img
             src="/erp-banner-login.jpg"
             alt="ERP System"
-            className="mx-auto h-12 w-auto mb-4"
+            className="mx-auto w-full mb-4"
           />
           <h2 className="text-2xl font-bold text-gray-900">Welcome Back</h2>
           <p className="mt-2 text-sm text-gray-600">

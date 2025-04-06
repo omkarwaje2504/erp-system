@@ -12,9 +12,7 @@ export default function ERPHomePage() {
     const fetchData = async () => {
       try {
         const [accountRes] = await Promise.all([
-          fetch("/api/tax-categories"),
           fetch("/api/chart-of-accounts"),
-          fetch("/api/cost-centers"),
         ]);
 
         const accountData = await accountRes.json();

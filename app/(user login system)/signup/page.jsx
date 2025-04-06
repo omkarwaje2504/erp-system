@@ -50,7 +50,7 @@ export default function Signup() {
 
   return (
     <div className="min-h-[100dvh] flex flex-col justify-center items-center bg-gray-50">
-      <div className="rounded-lg shadow-md w-96">
+      <div className="rounded-lg shadow-md max-w-xl">
         <div className="w-full">
           <img
             src="./erp-banner-signup.jpg"

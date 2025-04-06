@@ -24,14 +24,20 @@ export default function TaxationCompliancePage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [reportRes, auditRes] = await Promise.all([
-          fetch("/api/tax-reports"),
-          fetch("/api/tax-audit-trail"),
-        ]);
+        const reportRes = await fetch("/api/tax-reports");
         const reportData = await reportRes.json();
-        const auditData = await auditRes.json();
         setTaxReports(reportData.reports || []);
-        setAuditLogs(auditData.trail || []);
+        
+        // Calculate Audit Trail based on the fetched reports
+        const generatedAuditLogs = reportData.reports.map(report => {
+          return {
+            action: `Filing Report: ${report.reportType}`,
+            user: "System",
+            timestamp: report.createdAt,
+          };
+        });
+        setAuditLogs(generatedAuditLogs);
+        
       } catch (err) {
         console.error("Error fetching data:", err);
       }
@@ -39,6 +45,7 @@ export default function TaxationCompliancePage() {
     fetchData();
   }, []);
 
+  // Tax Audit Calculation based on Reports
   const totalTax = taxReports.reduce((sum, r) => sum + r.amount, 0);
   const pendingCount = taxReports.filter((r) => r.status === "pending").length;
   const nextFilingDue = taxReports.find((r) => r.status === "pending")?.period || "N/A";

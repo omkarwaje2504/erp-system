@@ -1,251 +1,181 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { FaRegEye } from "react-icons/fa6";
+import { useRouter } from "next/navigation";
+import { FaRegEye } from "react-icons/fa";
+import jsPDF from "jspdf";
+import { Bar, Line } from "recharts";
+import { Chart as ChartJS, BarElement, LineElement, CategoryScale, LinearScale, Tooltip, Legend } from "chart.js";
 
-export default function ProductionOverview() {
-  const [orders, setOrders] = useState([]);
-  const [filteredOrders, setFilteredOrders] = useState([]);
+ChartJS.register(BarElement, LineElement, CategoryScale, LinearScale, Tooltip, Legend);
+
+export default function FinancialOverviewPage() {
+  const [taxReports, setTaxReports] = useState([]);
+  const [taxCategories, setTaxCategories] = useState([]);
+  const [accounts, setAccounts] = useState([]);
+  const [costCenters, setCostCenters] = useState([]);
+  const [revenueData, setRevenueData] = useState([]);
+  const [cashFlowData, setCashFlowData] = useState([]);
+  const [pendingPayments, setPendingPayments] = useState({});
+  const [completedPayments, setCompletedPayments] = useState({});
   const [loading, setLoading] = useState(true);
-  const [selectedOrder, setSelectedOrder] = useState(null);
-  const [showModal, setShowModal] = useState(false);
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+
   const router = useRouter();
 
   useEffect(() => {
-    const fetchOrders = async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetch("/api/work-orders");
-        const data = await res.json();
-        setOrders(data.orders || []);
+        const [taxRes, accountRes, costCenterRes, revenueRes, cashFlowRes, paymentRes] = await Promise.all([
+          fetch("/api/tax-reports"),
+          fetch("/api/chart-of-accounts"),
+          fetch("/api/cost-centers"),
+          fetch("/api/sales-orders"),
+          fetch("/api/payments"),
+          fetch("/api/payments"),
+        ]);
+
+        const taxData = await taxRes.json();
+        const accountData = await accountRes.json();
+        const costCenterData = await costCenterRes.json();
+        const revenueData = await revenueRes.json();
+        const cashFlowData = await cashFlowRes.json();
+        const paymentData = await paymentRes.json();
+
+        setTaxReports(taxData.reports || []);
+        setTaxCategories(taxData.categories || []);
+        setAccounts(accountData.accounts || []);
+        setCostCenters(costCenterData.centers || []);
+        setRevenueData(revenueData.data || []);
+        setCashFlowData(cashFlowData.data || []);
+        setPendingPayments(paymentData.pending || {});
+        setCompletedPayments(paymentData.completed || {});
       } catch (error) {
-        console.error("Failed to fetch work orders:", error);
+        console.error("Error fetching data:", error);
       } finally {
         setLoading(false);
       }
     };
-    fetchOrders();
+
+    fetchData();
   }, []);
 
-  useEffect(() => {
-    const filtered =
-      statusFilter === "all"
-        ? orders
-        : orders.filter(
-            (order) => order.status?.toLowerCase() === statusFilter
-          );
-    setFilteredOrders(filtered);
-    setCurrentPage(1);
-  }, [orders, statusFilter]);
+  // Total Revenue calculation (assuming tax reports represent revenue)
+  const totalRevenue = taxReports.reduce((sum, r) => sum + r.amount, 0);
 
-  const getStatusCount = (status) =>
-    orders.filter((order) => order.status?.toLowerCase() === status).length;
+  // Total Expenses calculation (if tax reports have expense data)
+  const totalExpenses = taxReports.reduce((sum, r) => sum + (r.expenses || 0), 0);
 
-  const paginatedOrders = filteredOrders.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  // Net Profit/Loss calculation
+  const netProfitLoss = totalRevenue - totalExpenses;
 
-  const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
+  const revenueChartData = {
+    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+    datasets: [
+      {
+        label: "Revenue Trends",
+        data: revenueData,
+        backgroundColor: "#4B5563",
+      },
+    ],
+  };
+
+  const cashFlowChartData = {
+    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+    datasets: [
+      {
+        label: "Cash Flow",
+        data: cashFlowData,
+        borderColor: "#16A34A", // Green for positive cash flow
+        fill: false,
+        tension: 0.1,
+      },
+    ],
+  };
+
+  const downloadPDF = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text("Financial Report", 20, 20);
+    doc.setFontSize(12);
+    doc.text(`Total Revenue: ₹${totalRevenue}`, 20, 40);
+    doc.text(`Total Expenses: ₹${totalExpenses}`, 20, 50);
+    doc.text(`Net Profit/Loss: ₹${netProfitLoss}`, 20, 60);
+    doc.save(`FinancialReport-${new Date().toISOString()}.pdf`);
+  };
+
+  const outstandingReceivables = pendingPayments.amount || 0;
+  const pendingInvoices = pendingPayments.pendingCount || 0;
+
+  const outstandingPayables = completedPayments.amount || 0;
+  const paidInvoices = completedPayments.pendingCount || 0;
 
   return (
     <div className="p-6 w-full">
-      <nav className="mb-4 text-gray-600">
-        <ol className="flex space-x-2 text-sm">
-          <li>
-            <button
-              onClick={() =>
-                router.push("/dashboard/production-and-management")
-              }
-              className="hover:underline flex items-center"
-            >
-              Production and Management
-            </button>
-          </li>
-          <li>/</li>
-          <li className="font-semibold flex items-center">
-            Production Overview
-          </li>
-        </ol>
-      </nav>
+      <h1 className="text-3xl font-bold mb-6 text-gray-800">Financial Overview & Reports</h1>
 
-      <div className="flex justify-between items-center mb-6 border-b pb-4">
-        <h1 className="text-4xl font-bold text-gray-800">
-          Production Overview
-        </h1>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-        <div className="bg-purple-600 text-white p-6 rounded shadow text-center">
-          <h3 className="text-lg font-semibold mb-1">
-            Pending Work Orders Count
-          </h3>
-          <p className="text-3xl font-bold">{getStatusCount("pending")}</p>
+      {/* Profit & Loss Summary */}
+      <div className="bg-white shadow rounded p-6 mb-6">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">Profit & Loss Summary</h2>
         </div>
-
-        <div className="bg-green-600 text-white p-6 rounded shadow text-center">
-          <h3 className="text-lg font-semibold mb-1">
-            Completed Work Orders This Month
-          </h3>
-          <p className="text-3xl font-bold">{getStatusCount("completed")}</p>
-        </div>
-
-        <div className="bg-yellow-500 text-white p-6 rounded shadow text-center">
-          <h3 className="text-lg font-semibold mb-1">Inprogress Work Order</h3>
-          <p className="text-3xl font-bold">{getStatusCount("ongoing")}</p>
-        </div>
-      </div>
-
-      <div className="mt-6 mb-4 flex gap-4 items-center">
-        <label className="text-sm font-semibold text-gray-700">
-          Filter by Status:
-        </label>
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="border border-gray-300 rounded px-3 py-1"
-        >
-          <option value="all">All</option>
-          <option value="pending">Pending</option>
-          <option value="completed">Completed</option>
-          <option value="ongoing">Ongoing</option>
-        </select>
-      </div>
-
-      {showModal && selectedOrder && (
-        <div className="fixed inset-0 bg-black/65 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-[90%] max-w-xl shadow-lg relative">
-            <h2 className="text-2xl font-bold mb-4 text-gray-800">
-              Work Order Details
-            </h2>
-            <div className="space-y-2 text-gray-700">
-              <p>
-                <strong>ID:</strong> {selectedOrder.workOrderId}
-              </p>
-              <p>
-                <strong>Name:</strong> {selectedOrder.workOrderName}
-              </p>
-              <p>
-                <strong>Assigned To:</strong> {selectedOrder.assignedTo}
-              </p>
-              <p>
-                <strong>Start Date:</strong> {selectedOrder.startDate}
-              </p>
-              <p>
-                <strong>Completion Date:</strong> {selectedOrder.completionDate}
-              </p>
-              <p>
-                <strong>Efficiency:</strong> {selectedOrder.efficiency}
-              </p>
-              <p>
-                <strong>Description:</strong> {selectedOrder.description}
-              </p>
-              <p>
-                <strong>Status:</strong> {selectedOrder.status}
-              </p>
-              {selectedOrder.documentUrl && (
-                <img
-                  src={selectedOrder.documentUrl}
-                  alt="Document"
-                  className="w-[150px] rounded mt-2 border"
-                />
-              )}
-            </div>
-
-            <div className="flex justify-end gap-3 mt-6">
-              <button
-                onClick={() => {
-                  setShowModal(false);
-                  setSelectedOrder(null);
-                }}
-                className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
-              >
-                Close
-              </button>
-            </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <div className="bg-green-600 text-white p-6 rounded shadow text-center">
+            <h3 className="text-lg font-semibold mb-1">Total Revenue</h3>
+            <p className="text-3xl font-bold">₹{totalRevenue}</p>
+          </div>
+          <div className="bg-red-600 text-white p-6 rounded shadow text-center">
+            <h3 className="text-lg font-semibold mb-1">Total Expenses</h3>
+            <p className="text-3xl font-bold">₹{totalExpenses}</p>
+          </div>
+          <div className="bg-yellow-600 text-white p-6 rounded shadow text-center">
+            <h3 className="text-lg font-semibold mb-1">Net Profit/Loss</h3>
+            <p className="text-3xl font-bold">₹{netProfitLoss}</p>
           </div>
         </div>
-      )}
 
-      {loading ? (
-        <div className="text-center py-8">Loading...</div>
-      ) : (
-        <>
-          <div className="overflow-x-auto rounded-lg p-4">
-            <table className="min-w-full">
-              <thead className="bg-gray-200">
-                <tr className="text-left border-b text-lg font-semibold text-gray-700">
-                  <th className="p-2">Work order id & name</th>
-                  <th className="p-2">Assigned Workstation and employee</th>
-                  <th className="p-2">Start & Expected Completion Date</th>
-                  <th className="p-2">Production Efficiency</th>
-                  <th className="p-2">Production Status</th>
-                  <th className="p-2">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {paginatedOrders.map((order) => (
-                  <tr key={order.id} className="border-b hover:bg-gray-50">
-                    <td className="p-2 font-medium">
-                      {order.workOrderId} - {order.workOrderName}
-                    </td>
-                    <td className="p-2">{order.assignedTo}</td>
-                    <td className="p-2">
-                      {order.startDate} → {order.completionDate}
-                    </td>
-                    <td className="p-2">{order.efficiency}</td>
-                    <td className="p-2 capitalize">
-                      <span
-                        className={`px-3 py-1 inline-block font-medium rounded ${
-                          order.status === "Completed"
-                            ? "text-green-500"
-                            : order.status === "Pending"
-                            ? "text-red-500"
-                            : "text-yellow-500"
-                        }`}
-                      >
-                        {order.status}
-                      </span>
-                    </td>
-                    <td className="p-2">
-                      <button
-                        onClick={() => {
-                          setSelectedOrder(order);
-                          setShowModal(true);
-                        }}
-                        className="bg-blue-500 text-white px-2 py-1 text-sm rounded my-3 hover:bg-green-600 transition duration-200 flex items-center gap-x-1"
-                      >
-                        View <FaRegEye />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <Line data={cashFlowChartData} />
+      </div>
+
+      {/* Revenue Trends & Cash Flow */}
+      <div className="bg-white shadow rounded p-6 mb-6">
+        <h2 className="text-xl font-semibold mb-4">Revenue Trends & Cash Flow</h2>
+        <div className="max-w-2xl mx-auto">
+          <Bar data={revenueChartData} />
+        </div>
+      </div>
+
+      {/* Outstanding Payments */}
+      <div className="bg-white shadow rounded p-6 mb-6">
+        <h2 className="text-xl font-semibold mb-4">Outstanding Payments</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div className="bg-blue-600 text-white p-6 rounded shadow text-center">
+            <h3 className="text-lg font-semibold mb-1">Receivables</h3>
+            <p className="text-3xl font-bold">₹{outstandingReceivables}</p>
+            <p>{pendingInvoices} Pending Invoices</p>
           </div>
+          <div className="bg-orange-600 text-white p-6 rounded shadow text-center">
+            <h3 className="text-lg font-semibold mb-1">Payables</h3>
+            <p className="text-3xl font-bold">₹{outstandingPayables}</p>
+            <p>{paidInvoices} Pending Invoices</p>
+          </div>
+        </div>
+      </div>
 
-          {totalPages > 1 && (
-            <div className="flex justify-center mt-6 gap-2">
-              {Array.from({ length: totalPages }, (_, i) => (
-                <button
-                  key={i + 1}
-                  onClick={() => setCurrentPage(i + 1)}
-                  className={`px-3 py-1 rounded border text-sm ${
-                    currentPage === i + 1
-                      ? "bg-blue-600 text-white"
-                      : "bg-white text-gray-700 border-gray-300"
-                  }`}
-                >
-                  {i + 1}
-                </button>
-              ))}
-            </div>
-          )}
-        </>
-      )}
+      {/* Merged Reports */}
+      <div className="bg-white shadow rounded p-6 mb-6">
+        <h2 className="text-xl font-semibold mb-4">Merged Reports</h2>
+        <div className="tabs">
+          <ul>
+            <li>Profit & Loss Statement</li>
+            <li>Balance Sheet</li>
+            <li>Cash Flow Report</li>
+            <li>Aging Report (Receivables & Payables)</li>
+          </ul>
+          <div>
+            {/* Each report's data will be rendered in tabbed format */}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
