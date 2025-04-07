@@ -49,7 +49,6 @@ export async function POST(req) {
 
 export async function DELETE(req) {
   try {
-
     const { id } = await req.query;
     if (!id) {
       return NextResponse.json({ error: "Account ID is required" }, { status: 400 });

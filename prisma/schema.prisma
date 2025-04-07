@@ -19,12 +19,18 @@ model User {
   employeeId  String    @unique
   position    String?
   salary      Float?
+  photo       String?
   department  String
   role        String
   resetToken  String?
   tokenExpiry DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+
+  payrolls    Payroll[] @relation("UserToPayroll")
+  feedbacks   PerformanceFeedback[] @relation("UserToPerformanceFeedback")
+  announcements Announcement[] @relation("UserToAnnouncement")
+  tickets       Ticket[]       @relation("UserToTicket")
 }
 
 model Customer {
@@ -249,5 +255,56 @@ model Staff {
   documentUrl    String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+}
+
+model Payroll {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  employeeId   String   @db.ObjectId
+  basicSalary  Float
+  deductions   Float
+  bonuses      Float
+  netSalary    Float
+  payslipStatus String 
+  employee     User     @relation("UserToPayroll", fields: [employeeId], references: [id])
+}
+
+model PerformanceFeedback {
+  id                      String   @id @default(auto()) @map("_id") @db.ObjectId
+  employeeId              String   @db.ObjectId
+  employee                User     @relation("UserToPerformanceFeedback", fields: [employeeId], references: [id])
+  workEfficiencyScore     Int    
+  targetCompletionRate    Int
+  attendancePunctuality   Int
+  feedbackRatings         String
+  description             String?
+  lastAppraisalInfo       String?
+  performanceScore        Float
+  managerFeedback         String?
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+}
+
+model Announcement {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  postedBy    String   @db.ObjectId
+  user        User     @relation("UserToAnnouncement", fields: [postedBy], references: [id])
+  dateTime    DateTime
+  description String
+  documentUrl String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Ticket {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  employeeId    String   @db.ObjectId
+  employee      User     @relation("UserToTicket", fields: [employeeId], references: [id])
+  issueType     String  
+  description   String
+  documentUrl   String?
+  status        String   @default("Pending")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 

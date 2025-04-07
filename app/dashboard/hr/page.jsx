@@ -30,7 +30,7 @@ export default function ProductionAndManagementPage() {
     {
       title: "circulars announcements and tickets",
       imageUrl: "/reports.jpg",
-      link: "/dashboard/hr/circulars announcements and tickets",
+      link: "/dashboard/hr/circulars-announcements-and-tickets",
     },
   ];
 

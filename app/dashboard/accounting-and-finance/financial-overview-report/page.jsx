@@ -11,9 +11,6 @@ ChartJS.register(BarElement, LineElement, CategoryScale, LinearScale, Tooltip, L
 
 export default function FinancialOverviewPage() {
   const [taxReports, setTaxReports] = useState([]);
-  const [taxCategories, setTaxCategories] = useState([]);
-  const [accounts, setAccounts] = useState([]);
-  const [costCenters, setCostCenters] = useState([]);
   const [revenueData, setRevenueData] = useState([]);
   const [cashFlowData, setCashFlowData] = useState([]);
   const [pendingPayments, setPendingPayments] = useState({});

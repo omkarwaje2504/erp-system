@@ -26,6 +26,7 @@ const UploadFile = async (imageData, fileName, type) => {
       image: "image/png",
       video: "video/mp4",
       audio: "audio/wav",
+      file: "application/pdf",
     }[type] || null;
 
   if (!contentType) throw new Error("Unsupported file type");

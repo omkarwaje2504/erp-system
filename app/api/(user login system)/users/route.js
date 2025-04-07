@@ -6,11 +6,10 @@ const prisma = new PrismaClient();
 export async function GET() {
   try {
     const users = await prisma.user.findMany();
-    NextResponse.json(users);
+    return NextResponse.json({users});
   } catch (error) {
-    NextResponse.json({
-      error: "Failed to fetch users",
-      details: error.message,
-    });
+    return NextResponse.json({
+      error: error.message,
+    },{ status: 500 });
   }
 }

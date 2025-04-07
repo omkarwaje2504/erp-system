@@ -13,9 +13,10 @@ export default function StaffManagement() {
   useEffect(() => {
     const fetchStaff = async () => {
       try {
-        const res = await fetch("/api/staffs");
+        const res = await fetch("/api/users");
         const data = await res.json();
-        setStaffList(data.staff || []);
+        console.log("Staff data:", data.users);
+        setStaffList(data.users);
       } catch (error) {
         console.error("Error fetching staff:", error);
       } finally {
@@ -31,9 +32,12 @@ export default function StaffManagement() {
     router.push(`/dashboard/hr/staff-management/add`);
   };
 
+  console.log(staffList);
   return (
     <div className="p-6 w-full">
-      <h1 className="text-3xl font-bold mb-6 text-gray-800">Staff Management</h1>
+      <h1 className="text-3xl font-bold mb-6 text-gray-800">
+        Staff Management
+      </h1>
 
       <div className="flex justify-end mb-6">
         <Link href="/dashboard/hr/staff-management/add">
@@ -51,7 +55,7 @@ export default function StaffManagement() {
             <tr>
               <th className="p-2 text-left">Name</th>
               <th className="p-2 text-left">ID</th>
-              <th className="p-2 text-left">Designation</th>
+              <th className="p-2 text-left">Email</th>
               <th className="p-2 text-left">Department</th>
               <th className="p-2 text-left">Date of Joining</th>
               <th className="p-2 text-left">Salary</th>
@@ -62,10 +66,12 @@ export default function StaffManagement() {
             {staffList.map((staff) => (
               <tr key={staff.id} className="border-b hover:bg-gray-50">
                 <td className="p-2">{staff.name}</td>
-                <td className="p-2">{staff.id}</td>
-                <td className="p-2">{staff.designation}</td>
+                <td className="p-2">{staff.employeeId}</td>
+                <td className="p-2">{staff.email}</td>
                 <td className="p-2">{staff.department}</td>
-                <td className="p-2">{new Date(staff.dateOfJoining).toLocaleDateString()}</td>
+                <td className="p-2">
+                  {new Date(staff.createdAt).toLocaleDateString()}
+                </td>
                 <td className="p-2">₹{staff.salary}</td>
                 <td className="p-2">
                   <button
