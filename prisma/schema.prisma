@@ -27,17 +27,17 @@ model User {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
-  payrolls    Payroll[] @relation("UserToPayroll")
-  feedbacks   PerformanceFeedback[] @relation("UserToPerformanceFeedback")
-  announcements Announcement[] @relation("UserToAnnouncement")
-  tickets       Ticket[]       @relation("UserToTicket")
+  payrolls      Payroll[]             @relation("UserToPayroll")
+  feedbacks     PerformanceFeedback[] @relation("UserToPerformanceFeedback")
+  announcements Announcement[]        @relation("UserToAnnouncement")
+  tickets       Ticket[]              @relation("UserToTicket")
 }
 
 model Customer {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   contact     String
-  status      String 
+  status      String
   description String?
   location    String?
   docUrl      String?
@@ -69,14 +69,16 @@ model Product {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  stockMovements StockMovement[] @relation(fields: [], references: [])
-  inventories    Inventory[]      @relation("ProductToInventory")
-    allocations StockAllocation[]
+  stockMovements StockMovement[]   @relation(fields: [], references: [])
+  inventories    Inventory[]       @relation("ProductToInventory")
+  allocations    StockAllocation[] @relation("ProductToStockAllocation")
+  productOrders  ProductionOrder[] @relation("ProductToProductionOrder")
 }
 
 model ProductionOrder {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  productId   String
+  productId   String   @db.ObjectId
+  product     Product  @relation("ProductToProductionOrder", fields: [productId], references: [id])
   productName String
   warehouse   String
   quantity    Int
@@ -100,7 +102,7 @@ model MarketplaceOrder {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
   platform     String
   customerName String
-  status       String 
+  status       String
   description  String
   createdAt    DateTime @default(now())
 }
@@ -138,7 +140,7 @@ model Workstation {
   assignedTo       String
   currentOperation String
   productionTime   String
-  utilization      String 
+  utilization      String
   description      String?
   documentUrl      String?
   createdAt        DateTime @default(now())
@@ -152,7 +154,7 @@ model Invoice {
   customerName  String
   description   String?
   amount        Float
-  status        String 
+  status        String
   type          String
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -184,7 +186,6 @@ model Refund {
   updatedAt DateTime @updatedAt
 }
 
-
 model TaxReport {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   reportType  String
@@ -214,11 +215,10 @@ model TaxAuditTrail {
   timestamp DateTime @default(now())
 }
 
-
 model ChartOfAccount {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   name        String
-  type        String   // Asset, Liability, Revenue, Expense
+  type        String // Asset, Liability, Revenue, Expense
   balance     Float    @default(0)
   description String?
   status      String   @default("Active") // Active, Inactive
@@ -227,13 +227,13 @@ model ChartOfAccount {
 }
 
 model TaxCategory {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  name        String
-  percentage  Float
-  region      String
-  status      String   @default("Active") // Active, Inactive
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  name       String
+  percentage Float
+  region     String
+  status     String   @default("Active") // Active, Inactive
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 model CostCenter {
@@ -247,45 +247,45 @@ model CostCenter {
 }
 
 model Staff {
-  id             String   @id @default(auto()) @map("_id") @db.ObjectId
-  name           String
-  contact        String
-  address        String?
-  designation    String
-  department     String
-  salary         Float
-  dateOfJoining  DateTime
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  name            String
+  contact         String
+  address         String?
+  designation     String
+  department      String
+  salary          Float
+  dateOfJoining   DateTime
   terminationDate DateTime?
-  documentUrl    String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  documentUrl     String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 }
 
 model Payroll {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  employeeId   String   @db.ObjectId
-  basicSalary  Float
-  deductions   Float
-  bonuses      Float
-  netSalary    Float
-  payslipStatus String 
-  employee     User     @relation("UserToPayroll", fields: [employeeId], references: [id])
+  id            String @id @default(auto()) @map("_id") @db.ObjectId
+  employeeId    String @db.ObjectId
+  basicSalary   Float
+  deductions    Float
+  bonuses       Float
+  netSalary     Float
+  payslipStatus String
+  employee      User   @relation("UserToPayroll", fields: [employeeId], references: [id])
 }
 
 model PerformanceFeedback {
-  id                      String   @id @default(auto()) @map("_id") @db.ObjectId
-  employeeId              String   @db.ObjectId
-  employee                User     @relation("UserToPerformanceFeedback", fields: [employeeId], references: [id])
-  workEfficiencyScore     Int    
-  targetCompletionRate    Int
-  attendancePunctuality   Int
-  feedbackRatings         String
-  description             String?
-  lastAppraisalInfo       String?
-  performanceScore        Float
-  managerFeedback         String?
-  createdAt               DateTime @default(now())
-  updatedAt               DateTime @updatedAt
+  id                    String   @id @default(auto()) @map("_id") @db.ObjectId
+  employeeId            String   @db.ObjectId
+  employee              User     @relation("UserToPerformanceFeedback", fields: [employeeId], references: [id])
+  workEfficiencyScore   Int
+  targetCompletionRate  Int
+  attendancePunctuality Int
+  feedbackRatings       String
+  description           String?
+  lastAppraisalInfo     String?
+  performanceScore      Float
+  managerFeedback       String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
 }
 
 model Announcement {
@@ -301,37 +301,38 @@ model Announcement {
 }
 
 model Ticket {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
-  employeeId    String   @db.ObjectId
-  employee      User     @relation("UserToTicket", fields: [employeeId], references: [id])
-  issueType     String  
-  description   String
-  documentUrl   String?
-  status        String   @default("Pending")
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  employeeId  String   @db.ObjectId
+  employee    User     @relation("UserToTicket", fields: [employeeId], references: [id])
+  issueType   String
+  description String
+  documentUrl String?
+  status      String   @default("Pending")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
-
 model StockMovement {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  productId   String   @db.ObjectId
-  product     Product  @relation(fields: [productId], references: [id])
-  quantity    Int      // Positive for stock addition, negative for removal
-  type        String   // "IN" for stock received, "OUT" for stock sold or used
-  createdAt   DateTime @default(now())
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  productId     String   @db.ObjectId
+  product       Product  @relation(fields: [productId], references: [id])
+  quantity      Int // Positive for stock addition, negative for removal
+  fromWarehouse String? // Warehouse from which stock is moved
+  toWarehouse   String? // Warehouse to which stock is moved
+  type          String? // "IN" for stock received, "OUT" for stock sold or used
+  createdAt     DateTime @default(now())
 }
 
 model Inventory {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  productId   String   @db.ObjectId
-  product     Product  @relation("ProductToInventory", fields: [productId], references: [id])
-  stockLevel  Int      // Available stock in the warehouse
-  warehouse   String   // Warehouse location (e.g., "Warehouse 1")
-  minStock    Int      // Minimum stock threshold to trigger alerts
-  maxStock    Int      // Maximum stock capacity
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  productId  String   @db.ObjectId
+  product    Product  @relation("ProductToInventory", fields: [productId], references: [id])
+  stockLevel Int // Available stock in the warehouse
+  warehouse  String // Warehouse location (e.g., "Warehouse 1")
+  minStock   Int // Minimum stock threshold to trigger alerts
+  maxStock   Int // Maximum stock capacity
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 model StockAllocation {
@@ -342,11 +343,11 @@ model StockAllocation {
   materials   String
   status      String
   description String?
-  
-  // Relation to Product
-  productId   String   @db.ObjectId
-  product     Product  @relation(fields: [productId], references: [id])
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  // Relation to Product
+  productId String  @db.ObjectId
+  product   Product @relation("ProductToStockAllocation", fields: [productId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
 }

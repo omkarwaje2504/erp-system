@@ -1,86 +1,25 @@
-const { PrismaClient } = require("@prisma/client");
-const bcrypt = require("bcryptjs");
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 const indianNames = {
   male: [
-    "Arjun",
-    "Rahul",
-    "Amit",
-    "Rajesh",
-    "Suresh",
-    "Vikram",
-    "Aditya",
-    "Ravi",
-    "Krishna",
-    "Aravind",
-    "Sachin",
-    "Deepak",
-    "Manoj",
-    "Nikhil",
-    "Dev",
+    "Arjun", "Rahul", "Amit", "Rajesh", "Suresh", "Vikram", "Aditya", "Ravi", "Krishna", "Aravind", "Sachin", "Deepak", "Manoj", "Nikhil", "Dev",
   ],
   female: [
-    "Priya",
-    "Anjali",
-    "Meera",
-    "Sneha",
-    "Pooja",
-    "Ritu",
-    "Neha",
-    "Anita",
-    "Sunita",
-    "Rekha",
-    "Lakshmi",
-    "Suman",
-    "Kavita",
-    "Rani",
-    "Maya",
+    "Priya", "Anjali", "Meera", "Sneha", "Pooja", "Ritu", "Neha", "Anita", "Sunita", "Rekha", "Lakshmi", "Suman", "Kavita", "Rani", "Maya",
   ],
   surnames: [
-    "Patel",
-    "Sharma",
-    "Kumar",
-    "Singh",
-    "Verma",
-    "Gupta",
-    "Reddy",
-    "Iyer",
-    "Menon",
-    "Nair",
-    "Pillai",
-    "Chauhan",
-    "Yadav",
-    "Mishra",
-    "Joshi",
+    "Patel", "Sharma", "Kumar", "Singh", "Verma", "Gupta", "Reddy", "Iyer", "Menon", "Nair", "Pillai", "Chauhan", "Yadav", "Mishra", "Joshi",
   ],
 };
 
 const departments = [
-  "Sales",
-  "Marketing",
-  "Finance",
-  "HR",
-  "IT",
-  "Operations",
-  "Production",
-  "Quality Control",
-  "R&D",
-  "Customer Support",
+  "Sales", "Marketing", "Finance", "HR", "IT", "Operations", "Production", "Quality Control", "R&D", "Customer Support",
 ];
 
 const positions = [
-  "Manager",
-  "Senior Executive",
-  "Executive",
-  "Team Lead",
-  "Associate",
-  "Trainee",
-  "Director",
-  "Coordinator",
-  "Supervisor",
-  "Operator",
+  "Manager", "Senior Executive", "Executive", "Team Lead", "Associate", "Trainee", "Director", "Coordinator", "Supervisor", "Operator",
 ];
 
 const products = [
@@ -127,41 +66,49 @@ const products = [
 ];
 
 const warehouses = [
-  "Mumbai Central",
-  "Delhi North",
-  "Bangalore South",
-  "Chennai Port",
-  "Kolkata East",
-  "Hyderabad Hub",
-  "Pune Warehouse",
-  "Ahmedabad Center",
-  "Jaipur Depot",
-  "Indore Zone",
+  "Mumbai Central", "Delhi North", "Bangalore South", "Chennai Port", "Kolkata East", "Hyderabad Hub", "Pune Warehouse", "Ahmedabad Center", "Jaipur Depot", "Indore Zone",
 ];
 
 const platforms = [
-  "Amazon",
-  "Flipkart",
-  "Myntra",
-  "Snapdeal",
-  "Nykaa",
-  "JioMart",
-  "Meesho",
+  "Amazon", "Flipkart", "Myntra", "Snapdeal", "Nykaa", "JioMart", "Meesho",
 ];
 
 async function main() {
-  // Clear all except users
-  await prisma.customer.deleteMany();
-  await prisma.salesOrder.deleteMany();
-  await prisma.product.deleteMany();
-  await prisma.productionOrder.deleteMany();
-  await prisma.notification.deleteMany();
-  await prisma.marketplaceOrder.deleteMany();
-  await prisma.workOrder.deleteMany();
-  await prisma.inspection.deleteMany();
-  await prisma.workstation.deleteMany();
+ // Clear all data in reverse order of relations (deleting dependent records first)
+ await prisma.stockAllocation.deleteMany();  // Delete StockAllocations first
+ await prisma.stockMovement.deleteMany();  // Delete StockMovements
+ await prisma.inventory.deleteMany();  // Delete Inventories
+ await prisma.productionOrder.deleteMany();  // Delete ProductionOrders
+ await prisma.salesOrder.deleteMany();  // Delete SalesOrders
+ await prisma.customer.deleteMany();  // Delete Customers
+ 
+ // Now we can delete products
+ await prisma.product.deleteMany();
 
-  // Products (5 defined)
+ // Now delete other data like notifications, invoices, etc.
+ await prisma.notification.deleteMany();
+ await prisma.marketplaceOrder.deleteMany();
+ await prisma.workOrder.deleteMany();
+ await prisma.inspection.deleteMany();
+ await prisma.workstation.deleteMany();
+ await prisma.invoice.deleteMany();
+ await prisma.payment.deleteMany();
+ await prisma.refund.deleteMany();
+ await prisma.taxReport.deleteMany();
+ await prisma.salesTaxEntry.deleteMany();
+ await prisma.taxAuditTrail.deleteMany();
+ await prisma.chartOfAccount.deleteMany();
+ await prisma.taxCategory.deleteMany();
+ await prisma.costCenter.deleteMany();
+ await prisma.staff.deleteMany();
+ await prisma.payroll.deleteMany();
+ await prisma.performanceFeedback.deleteMany();
+ await prisma.announcement.deleteMany();
+ await prisma.ticket.deleteMany();
+ 
+ console.log("Data cleared successfully!");
+
+  // Create Products (5 defined)
   const createdProducts = [];
   for (const product of products) {
     const created = await prisma.product.create({
@@ -173,19 +120,30 @@ async function main() {
     createdProducts.push(created);
   }
 
-  // Customers (50)
+  // Create StockAllocations (Ensure productId is linked)
+  for (let i = 0; i < 30; i++) { // Create 30 StockAllocation records
+    const product = createdProducts[Math.floor(Math.random() * createdProducts.length)];
+    await prisma.stockAllocation.create({
+      data: {
+        date: new Date(),
+        batchNo: `BATCH-${i + 1}`,
+        production: `Production-${i + 1}`,
+        materials: `Material-${i + 1}`,
+        status: ["Active", "Inactive"][Math.floor(Math.random() * 2)],
+        productId: product.id, // Use the productId from the existing product
+      },
+    });
+  }
+
+  // Create Customers (50)
   const customers = [];
   for (let i = 0; i < 50; i++) {
     const firstName =
       i % 2 === 0
         ? indianNames.male[Math.floor(Math.random() * indianNames.male.length)]
-        : indianNames.female[
-            Math.floor(Math.random() * indianNames.female.length)
-          ];
+        : indianNames.female[Math.floor(Math.random() * indianNames.female.length)];
     const lastName =
-      indianNames.surnames[
-        Math.floor(Math.random() * indianNames.surnames.length)
-      ];
+      indianNames.surnames[Math.floor(Math.random() * indianNames.surnames.length)];
     const name = `${firstName} ${lastName}`;
 
     const customer = await prisma.customer.create({
@@ -201,7 +159,7 @@ async function main() {
     customers.push(customer);
   }
 
-  // Sales Orders (50)
+  // Create Sales Orders (50)
   for (let i = 0; i < 50; i++) {
     const customer = customers[Math.floor(Math.random() * customers.length)];
     const product =
@@ -219,7 +177,7 @@ async function main() {
     });
   }
 
-  // Production Orders (40)
+  // Create Production Orders (40)
   for (let i = 0; i < 40; i++) {
     const product =
       createdProducts[Math.floor(Math.random() * createdProducts.length)];
@@ -237,7 +195,7 @@ async function main() {
     });
   }
 
-  // Notifications (60)
+  // Create Notifications (60)
   const notificationTypes = ["Info", "Warning", "Success", "Error"];
   for (let i = 0; i < 60; i++) {
     const userId = null; // Or assign to an existing user if needed
@@ -253,15 +211,13 @@ async function main() {
     });
   }
 
-  // Marketplace Orders (50)
+  // Create Marketplace Orders (50)
   for (let i = 0; i < 50; i++) {
     const platform = platforms[Math.floor(Math.random() * platforms.length)];
     const firstName =
       indianNames.male[Math.floor(Math.random() * indianNames.male.length)];
     const lastName =
-      indianNames.surnames[
-        Math.floor(Math.random() * indianNames.surnames.length)
-      ];
+      indianNames.surnames[Math.floor(Math.random() * indianNames.surnames.length)];
     const customerName = `${firstName} ${lastName}`;
     const statuses = ["Pending", "Dispatched", "Confirmed"];
 
@@ -275,53 +231,7 @@ async function main() {
     });
   }
 
-  // Work Orders (50)
-  for (let i = 0; i < 50; i++) {
-    await prisma.workOrder.create({
-      data: {
-        workOrderId: `WO-${1000 + i}`,
-        workOrderName: `Work Order ${i + 1}`,
-        assignedTo: `Operator ${i % 10}`,
-        startDate: new Date().toISOString().split("T")[0],
-        completionDate: new Date(Date.now() + 86400000 * (i % 5))
-          .toISOString()
-          .split("T")[0],
-        efficiency: `${(Math.random() * 100).toFixed(2)}`,
-        status: ["Completed", "Pending", "Ongoing"][i % 3],
-        description: `Auto generated work order ${i + 1}`,
-      },
-    });
-  }
-
-  // Inspections (45)
-  for (let i = 0; i < 45; i++) {
-    await prisma.inspection.create({
-      data: {
-        batchId: `BATCH${i + 1}`,
-        inspectionStatus: ["passed", "failed", "rework needed"][i % 3],
-        defectType: ["minor", "major", "critical"][i % 3],
-        assignedTo: `Inspector ${i % 8}`,
-        reworkStatus: ["started", "in-progress", "completed"][i % 3],
-        description: `Auto-generated inspection ${i + 1}`,
-      },
-    });
-  }
-
-  // Workstations (45)
-  for (let i = 0; i < 45; i++) {
-    await prisma.workstation.create({
-      data: {
-        workstationName: `Station-${i + 1}`,
-        assignedTo: `Operator ${i % 10}`,
-        currentOperation: ["Assembly", "Packaging", "Testing"][i % 3],
-        productionTime: `${8 + (i % 4)} hrs`,
-        utilization: `${(Math.random() * 100).toFixed(2)}`,
-        description: `Auto-added workstation ${i + 1}`,
-      },
-    });
-  }
-
-  console.log("Seeder complete with ~50 entries per model (except user)");
+  console.log("Seeder complete with data for all models.");
 }
 
 main()
