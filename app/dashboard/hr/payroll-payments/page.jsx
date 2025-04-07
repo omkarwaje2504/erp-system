@@ -77,6 +77,8 @@ export default function PayrollPage() {
     doc.save(`${employee.name}_Payslip.pdf`);
   };
 
+
+
   return (
     <div className="p-6 w-full">
       <h1 className="text-3xl font-bold mb-6 text-gray-800">
@@ -204,7 +206,7 @@ export default function PayrollPage() {
                       </td>
                       <td className="p-2 text-center">
                         <button
-                          onClick={handleDownloadPayslip(payroll)}
+                          onClick={()=>handleDownloadPayslip(payroll)}
                           className="text-blue-600 hover:underline"
                         >
                           Download Payslip

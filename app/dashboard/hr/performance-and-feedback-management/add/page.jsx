@@ -58,6 +58,8 @@ export default function AddPerformanceFeedback() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(formData)
     });
+
+    router.push("/dashboard/hr/performance-and-feedback-management");
   };
 
   return (

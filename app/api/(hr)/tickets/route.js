@@ -21,8 +21,20 @@ export async function GET(req) {
 export async function POST(req) {
   try {
     const body = await req.json();
-    const { employeeId, issueType, description, documentUrl } = body;
+    const { id, employeeId, issueType, description, documentUrl, status } = body;
 
+    if (id) {
+      // 🔁 Update existing ticket
+      const updated = await prisma.ticket.update({
+        where: { id },
+        data: {
+          status: status || "Pending",
+        },
+      });
+      return NextResponse.json({ message: "Ticket updated", ticket: updated });
+    }
+
+    // 🆕 Create new ticket
     if (!ObjectId.isValid(employeeId)) {
       return NextResponse.json({ error: "Invalid employee ID" }, { status: 400 });
     }
@@ -33,12 +45,13 @@ export async function POST(req) {
         issueType,
         description,
         documentUrl,
+        status: "Pending",
       },
     });
 
     return NextResponse.json({ message: "Ticket created", ticket: created });
   } catch (error) {
-    console.error("Error creating ticket:", error);
+    console.error("Error creating/updating ticket:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

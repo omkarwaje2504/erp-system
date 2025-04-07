@@ -14,13 +14,28 @@ export default function RaiseTicket() {
     employeeId: "",
     issueType: "",
     description: "",
-    documentUrl: ""
+    documentUrl: "",
   });
 
   useEffect(() => {
     fetch("/api/users")
       .then((res) => res.json())
       .then((data) => setEmployees(data.users || []));
+  }, []);
+
+  useEffect(() => {
+    const editData = localStorage.getItem("ticketData");
+    if (editData) {
+      const parsed = JSON.parse(editData);
+      setFormData({
+        id: parsed.id,
+        employeeId: parsed.employeeId,
+        issueType: parsed.issueType,
+        description: parsed.description,
+        documentUrl: parsed.documentUrl,
+      });
+      localStorage.removeItem("ticketData");
+    }
   }, []);
 
   const handleChange = (e) => {
@@ -47,9 +62,11 @@ export default function RaiseTicket() {
     await fetch("/api/tickets", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData)
+      body: JSON.stringify(formData),
     });
-    router.push("/dashboard/hr/circulars-announcements-and-tickets/grievance-and-ticket-system");
+    router.push(
+      "/dashboard/hr/circulars-announcements-and-tickets/grievance-and-ticket-system"
+    );
   };
 
   return (
@@ -68,7 +85,11 @@ export default function RaiseTicket() {
           <li>/</li>
           <li>
             <button
-              onClick={() => router.push("/dashboard/hr/circulars-announcements-and-tickets/grievance-and-ticket-system")}
+              onClick={() =>
+                router.push(
+                  "/dashboard/hr/circulars-announcements-and-tickets/grievance-and-ticket-system"
+                )
+              }
               className="hover:underline flex items-center"
             >
               Grievance & Ticket System
@@ -81,9 +102,7 @@ export default function RaiseTicket() {
 
       {/* Page Header */}
       <div className="flex justify-between items-center mb-6 border-b pb-4">
-        <h1 className="text-4xl font-bold text-gray-800">
-          Raise a Ticket
-        </h1>
+        <h1 className="text-4xl font-bold text-gray-800">Raise a Ticket</h1>
         <Button
           label="Submit Ticket"
           onClick={handleSubmit}
@@ -94,7 +113,9 @@ export default function RaiseTicket() {
       {/* Form */}
       <form className="p-6 rounded-lg shadow-md space-y-6 bg-white">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Employee</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Employee
+          </label>
           <select
             name="employeeId"
             value={formData.employeeId}
@@ -111,7 +132,9 @@ export default function RaiseTicket() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Select Issue Type</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Select Issue Type
+          </label>
           <select
             name="issueType"
             value={formData.issueType}
@@ -144,9 +167,13 @@ export default function RaiseTicket() {
             className="border p-2 w-full rounded"
             onChange={handleUpload}
           />
-          {uploading && <p className="text-blue-500 text-sm mt-2">Uploading...</p>}
+          {uploading && (
+            <p className="text-blue-500 text-sm mt-2">Uploading...</p>
+          )}
           {formData.documentUrl && (
-            <p className="text-green-600 text-sm mt-1">File uploaded successfully.</p>
+            <p className="text-green-600 text-sm mt-1">
+              File uploaded successfully.
+            </p>
           )}
         </div>
       </form>

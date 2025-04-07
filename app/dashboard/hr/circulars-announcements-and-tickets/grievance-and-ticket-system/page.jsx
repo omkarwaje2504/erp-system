@@ -15,10 +15,33 @@ export default function GrievanceAndTicketSystem() {
 
   const statusColor = (status) => {
     switch (status.toLowerCase()) {
-      case "pending": return "text-yellow-600";
-      case "resolved": return "text-green-600";
-      case "in-progress": return "text-blue-600";
-      default: return "text-gray-600";
+      case "pending":
+        return "text-yellow-600";
+      case "resolved":
+        return "text-green-600";
+      case "in-progress":
+        return "text-blue-600";
+      default:
+        return "text-gray-600";
+    }
+  };
+
+  const markAsSolved = async (ticketId) => {
+    try {
+      const res = await fetch(`/api/tickets`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: ticketId, status: "Resolved" }),
+      });
+
+      if (res.ok) {
+        alert("Ticket marked as Resolved");
+        router.refresh();
+      } else {
+        alert("Failed to update ticket status");
+      }
+    } catch (error) {
+      console.error("Error updating status:", error);
     }
   };
 
@@ -28,7 +51,10 @@ export default function GrievanceAndTicketSystem() {
       <nav className="mb-4 text-gray-600">
         <ol className="flex space-x-2 text-sm">
           <li>
-            <button onClick={() => router.push("/dashboard/hr")} className="hover:underline">
+            <button
+              onClick={() => router.push("/dashboard/hr")}
+              className="hover:underline"
+            >
               Home
             </button>
           </li>
@@ -38,14 +64,22 @@ export default function GrievanceAndTicketSystem() {
       </nav>
 
       {/* Heading */}
-      <h1 className="text-4xl font-semibold">Employee Grievance & Ticket System</h1>
-      <h2 className="text-xl font-medium mt-1 border-b pb-2">HR Ticket Management Section</h2>
+      <h1 className="text-4xl font-semibold">
+        Employee Grievance & Ticket System
+      </h1>
+      <h2 className="text-xl font-medium mt-1 border-b pb-2">
+        HR Ticket Management Section
+      </h2>
 
       {/* Button */}
       <div className="flex justify-end mt-4">
         <button
           className="bg-gray-200 px-4 py-2 rounded shadow font-medium"
-          onClick={() => router.push("/dashboard/hr/circulars-announcements-and-tickets/grievance-and-ticket-system/add")}
+          onClick={() =>
+            router.push(
+              "/dashboard/hr/circulars-announcements-and-tickets/grievance-and-ticket-system/add"
+            )
+          }
         >
           Raise a New Ticket
         </button>
@@ -59,7 +93,6 @@ export default function GrievanceAndTicketSystem() {
               <th className="p-3">Employee Name & ID</th>
               <th className="p-3">Issue Type</th>
               <th className="p-3">Description</th>
-              <th className="p-3">Action</th>
               <th className="p-3">Resolution Status</th>
               <th className="p-3">Actions</th>
             </tr>
@@ -74,21 +107,34 @@ export default function GrievanceAndTicketSystem() {
             ) : (
               tickets.map((ticket) => (
                 <tr key={ticket.id} className="border-b hover:bg-gray-50">
-                  <td className="p-3">{ticket.employee.name} ({ticket.employee.employeeId})</td>
+                  <td className="p-3">
+                    {ticket.employee.name} ({ticket.employee.employeeId})
+                  </td>
                   <td className="p-3">{ticket.issueType}</td>
                   <td className="p-3">{ticket.description}</td>
-                  <td className="p-3 font-medium">{ticket.status}</td>
-                  <td className={`p-3 font-medium ${statusColor(ticket.status)}`}>{ticket.status}</td>
+                  <td
+                    className={`p-3 font-medium ${statusColor(ticket.status)}`}
+                  >
+                    {ticket.status}
+                  </td>
                   <td className="p-3">
                     <button
                       className="text-blue-500 underline mr-2"
-                      onClick={() => router.push(`/dashboard/hr/grievance-and-ticket-system/edit?id=${ticket.id}`)}
+                      onClick={() => {
+                        localStorage.setItem(
+                          "ticketData",
+                          JSON.stringify(ticket)
+                        );
+                        router.push(
+                          `/dashboard/hr/circulars-announcements-and-tickets/grievance-and-ticket-system/add`
+                        );
+                      }}
                     >
                       Edit
                     </button>
                     <button
                       className="text-green-600 underline"
-                      onClick={() => alert("Mark as solved logic goes here")}
+                      onClick={() => markAsSolved(ticket.id)}
                     >
                       Mark as Solved
                     </button>

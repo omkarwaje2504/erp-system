@@ -68,6 +68,10 @@ model Product {
   imageUrl    String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  stockMovements StockMovement[] @relation(fields: [], references: [])
+  inventories    Inventory[]      @relation("ProductToInventory")
+    allocations StockAllocation[]
 }
 
 model ProductionOrder {
@@ -308,3 +312,41 @@ model Ticket {
   updatedAt     DateTime @updatedAt
 }
 
+
+model StockMovement {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  productId   String   @db.ObjectId
+  product     Product  @relation(fields: [productId], references: [id])
+  quantity    Int      // Positive for stock addition, negative for removal
+  type        String   // "IN" for stock received, "OUT" for stock sold or used
+  createdAt   DateTime @default(now())
+}
+
+model Inventory {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  productId   String   @db.ObjectId
+  product     Product  @relation("ProductToInventory", fields: [productId], references: [id])
+  stockLevel  Int      // Available stock in the warehouse
+  warehouse   String   // Warehouse location (e.g., "Warehouse 1")
+  minStock    Int      // Minimum stock threshold to trigger alerts
+  maxStock    Int      // Maximum stock capacity
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model StockAllocation {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  date        DateTime
+  batchNo     String
+  production  String
+  materials   String
+  status      String
+  description String?
+  
+  // Relation to Product
+  productId   String   @db.ObjectId
+  product     Product  @relation(fields: [productId], references: [id])
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

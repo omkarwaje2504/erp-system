@@ -19,7 +19,7 @@ export default function AttendanceLeaveManagement() {
     const fetchData = async () => {
       try {
         const attendanceRes = await fetch("/api/attendance");
-        const leaveRes = await fetch("/api/leave-requests");
+        const leaveRes = await fetch("/api/leave");
 
         const attendanceData = await attendanceRes.json();
         const leaveData = await leaveRes.json();
