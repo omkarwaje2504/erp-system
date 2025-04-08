@@ -22,11 +22,6 @@ export default function InventoryDashboardPage() {
       imageUrl: "/sales-crm-sr.jpg",  // Example image URL
       link: "/dashboard/stock-inventory/stock-allocation",
     },
-    {
-      title: "Reports & Analytics",
-      imageUrl: "/sales-crm-sr.jpg",  // Example image URL
-      link: "/dashboard/stock-inventory/reports-analytics",
-    },
   ];
 
   return (

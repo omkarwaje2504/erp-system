@@ -48,7 +48,7 @@ export default function StockAllocationPage() {
         <ol className="flex space-x-2 text-sm">
           <li>
             <button
-              onClick={() => router.push("/dashboard")}
+              onClick={() => router.push("/dashboard/stock-inventory")}
               className="hover:underline flex items-center"
             >
               Home
