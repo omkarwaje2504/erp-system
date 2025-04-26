@@ -9,9 +9,12 @@ export default function AnnouncementsAndTickets() {
 
   useEffect(() => {
     // You can replace this with your real API call
-    fetch("/api/announcements")
+    fetch("/api/announcement")
       .then((res) => res.json())
-      .then((data) => setAnnouncements(data || []));
+      .then((data) => {
+        console.log(data);
+        setAnnouncements(data.data || []);
+      });
   }, []);
 
   return (
@@ -20,7 +23,10 @@ export default function AnnouncementsAndTickets() {
       <nav className="mb-4 text-gray-600">
         <ol className="flex space-x-2 text-sm">
           <li>
-            <button onClick={() => router.push("/dashboard/hr")} className="hover:underline">
+            <button
+              onClick={() => router.push("/dashboard/hr")}
+              className="hover:underline"
+            >
               Home
             </button>
           </li>
@@ -29,18 +35,26 @@ export default function AnnouncementsAndTickets() {
         </ol>
       </nav>
 
-      <h1 className="text-4xl font-semibold border-b pb-2">Circulars, Announcements and Tickets</h1>
+      <h1 className="text-4xl font-semibold border-b pb-2">
+        Circulars, Announcements and Tickets
+      </h1>
 
       <div className="flex justify-between items-center mt-6">
         <button
-          onClick={() => router.push("/dashboard/hr/circulars-announcements-and-tickets/grievance-and-ticket-system")}
+          onClick={() =>
+            router.push(
+              "/dashboard/hr/circulars-announcements-and-tickets/grievance-and-ticket-system"
+            )
+          }
           className="bg-gray-200 px-6 py-3 rounded font-medium shadow"
         >
           Employee Grievance & Ticket System
         </button>
 
         <button
-          onClick={() => router.push("/dashboard/hr/announcements/add")}
+          onClick={() =>
+            router.push("/dashboard/hr/circulars-announcements-and-tickets/add")
+          }
           className="bg-gray-200 px-4 py-2 rounded font-medium shadow"
         >
           Add New Announcement
@@ -73,7 +87,12 @@ export default function AnnouncementsAndTickets() {
                   <td className="p-3">{item.dateTime}</td>
                   <td className="p-3">{item.description}</td>
                   <td className="p-3">
-                    <a href={item.documentUrl} className="text-blue-500 underline" target="_blank" rel="noreferrer">
+                    <a
+                      href={item.documentUrl}
+                      className="text-blue-500 underline"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
                       View Full Document
                     </a>
                   </td>

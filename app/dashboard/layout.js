@@ -4,19 +4,18 @@ import Link from "next/link";
 import {
   ShoppingCart,
   TrendingUp,
-  List,
   FileText,
   Factory,
-  PieChart,
   Bell,
   UserCircle2,
   X,
   Users,
   Menu,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import NotificationPanel from "@/components/NotificationPanel";
 import Layout from "@/components/Layout";
+import ChatBot from "@/components/ChatBot";
 
 const sidebarItems = [
   {
@@ -49,52 +48,36 @@ const sidebarItems = [
     href: "/dashboard/production-and-management",
     highlight: "production-and-management",
   },
-  {
-    icon: <PieChart className="w-5 h-5" />,
-    label: "Reports",
-    href: "/dashboard/reports",
-    highlight: "reports",
-  },
-  {
-    icon: <List className="w-5 h-5" />,
-    label: "Business Overview",
-    href: "/dashboard/business-overview",
-    highlight: "business-overview",
-  },
 ];
 
 export default function DashboardLayout({ children }) {
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-  const [pathname, setPathname] = useState("");
   const [user, setUser] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
-  const [notifications, setNotifications] = useState(0);
+  const [notifications, setNotifications] = useState(3); // Example count
 
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth <= 768);
     };
 
-    const pathname = window.location.pathname;
     const userData = localStorage.getItem("userData");
     if (userData) {
-      const parsedUserData = JSON.parse(userData);
-      setUser(parsedUserData);
+      setUser(JSON.parse(userData));
     }
-    const getPathnameArray = pathname.split("/");
-    sidebarItems.forEach((item) => {
-      const path = item.highlight;
-      if (getPathnameArray.includes(path)) {
-        setPathname(`/dashboard/${path}`);
-      }
-    });
+
     checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
+
+  const isActive = (highlight) => {
+    return pathname.includes(highlight);
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("userData");
@@ -103,16 +86,27 @@ export default function DashboardLayout({ children }) {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
       <div
         className={`
-          fixed md:static z-40 top-0 left-0 h-full w-64 bg-white shadow-sm
+          fixed md:static z-40 top-0 left-0 h-full w-64 bg-indigo-900 shadow-sm
           transform transition-transform duration-300 ease-in-out
-          ${isMobile ? (isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full") : "translate-x-0"}
+          ${
+            isMobile
+              ? isMobileSidebarOpen
+                ? "translate-x-0"
+                : "-translate-x-full"
+              : "translate-x-0"
+          }
         `}
       >
-        <div className="p-4 border-b">
-          <h2 className="text-xl font-bold text-gray-800">Clan India Lifestyle ERP</h2>
+        <div className="p-6 border-b bg-gray-100">
+          <a href="/dashboard" >
+            <img
+              src="/logo.png"
+              alt="Logo"
+              className="h-full w-auto mx-auto"
+            />
+          </a>
         </div>
 
         <nav className="p-4">
@@ -121,12 +115,15 @@ export default function DashboardLayout({ children }) {
               <li key={item.label}>
                 <Link
                   href={item.href}
-                  onClick={isMobile ? () => setIsMobileSidebarOpen(false) : undefined}
+                  onClick={
+                    isMobile ? () => setIsMobileSidebarOpen(false) : undefined
+                  }
                   className={`
                     flex items-center space-x-3 p-3 rounded-lg transition-colors
-                    ${pathname === item.href
-                      ? "bg-blue-50 text-blue-600"
-                      : "text-gray-600 hover:bg-gray-50"
+                    ${
+                      isActive(item.highlight)
+                        ? "bg-white text-blue-600"
+                        : "text-white hover:bg-indigo-950"
                     }
                   `}
                 >
@@ -139,10 +136,11 @@ export default function DashboardLayout({ children }) {
         </nav>
       </div>
 
+      <ChatBot />
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <header className="bg-white shadow-sm">
+        <header className="bg-white border-b shadow-sm">
           <div className="flex justify-between items-center px-4 py-3">
             {isMobile && (
               <button
@@ -168,7 +166,9 @@ export default function DashboardLayout({ children }) {
 
               <div className="relative">
                 <button
-                  onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                  onClick={() =>
+                    setIsProfileDropdownOpen(!isProfileDropdownOpen)
+                  }
                   className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-50"
                 >
                   <UserCircle2 className="w-6 h-6 text-gray-600" />

@@ -1,9 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ChevronLeft, Save, XCircle, User, Package, Hash, IndianRupee, ClipboardList } from "lucide-react";
 import InputField from "@/components/InputField";
-import Button from "@/components/Button";
-import { FaSave } from "react-icons/fa";
 
 export default function AddSalesOrder() {
   const router = useRouter();
@@ -26,7 +25,7 @@ export default function AddSalesOrder() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm({ ...form, [name]: value });
+    setForm(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -57,13 +56,13 @@ export default function AddSalesOrder() {
   };
 
   return (
-    <div className="pb-6 w-full mx-auto">
+    <div className="p-4 md:p-6 w-full mx-auto">
       {/* Breadcrumbs */}
-      <nav className="mb-4 text-gray-600">
+      <nav className="mb-4 text-gray-600 hidden md:block">
         <ol className="flex space-x-2 text-sm">
           <li>
             <button
-              onClick={() => router.push("/dashboard/sales-crm")}
+              onClick={() => router.push("/dashboard")}
               className="hover:underline flex items-center"
             >
               Home
@@ -72,113 +71,128 @@ export default function AddSalesOrder() {
           <li>/</li>
           <li>
             <button
-              onClick={() => router.push("/dashboard/sales-crm/selling")}
+              onClick={() => router.push("/dashboard/sales-crm")}
               className="hover:underline flex items-center"
             >
-              Selling and Customer Management
+              Sales CRM
             </button>
           </li>
           <li>/</li>
-          <li>
-            <button
-              onClick={() =>
-                router.push("/dashboard/sales-crm/selling/sales-orders")
-              }
-              className="hover:underline flex items-center"
-            >
-              Sales Orders
-            </button>
-          </li>
-          <li>/</li>
-          <li className="font-semibold flex items-center">Add Sales Order</li>
+          <li className="font-semibold flex items-center">New Sales Order</li>
         </ol>
       </nav>
 
-      {/* Header Section */}
+      {/* Page Header */}
       <div className="flex justify-between items-center mb-6 border-b pb-4">
-        <h1 className="text-4xl font-bold text-gray-800">
-          Create New Sales Order
-        </h1>
-        <Button
-          type="button"
-          onClick={handleSubmit}
-          className="!w-fit bg-blue-600 hover:bg-blue-700 flex items-center gap-2"
-          isLoading={loading}
-          label={
-            <>
-              <FaSave />
-              Save Order
-            </>
-          }
-        />
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={() => router.push("/dashboard/sales-crm/selling/sales-orders")}
+            className="p-2 rounded-full hover:bg-gray-100"
+          >
+            <ChevronLeft size={20} />
+          </button>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
+            Create Sales Order
+          </h1>
+        </div>
       </div>
 
-      <form className="p-6 rounded-lg shadow-md space-y-6 bg-white">
-        {/* Customer Name */}
-        <InputField
-          label="Customer Name"
-          name="customerName"
-          type="text"
-          value={form.customerName}
-          onChange={handleChange}
-          placeholder="Enter customer name"
-          required
-        />
-
-        {/* Product Text Field */}
-        <InputField
-          label="Product"
-          name="product"
-          type="text"
-          value={form.product}
-          onChange={handleChange}
-          placeholder="Enter product name"
-          required
-        />
-
-        {/* Quantity and Price */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <InputField
-            label="Quantity"
-            name="quantity"
-            type="number"
-            value={form.quantity}
-            onChange={handleChange}
-            placeholder="Enter quantity"
-            min="1"
-            required
-          />
-          <InputField
-            label="Price (₹)"
-            name="price"
-            type="number"
-            value={form.price}
-            onChange={handleChange}
-            placeholder="Enter price"
-            min="0"
-            step="0.01"
-            required
-          />
+      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+        <div className="p-6 border-b">
+          <h2 className="text-xl font-semibold flex items-center">
+            <ClipboardList className="mr-2" size={20} />
+            Order Details
+          </h2>
+          <p className="text-gray-500 text-sm mt-1">
+            Enter customer order information and transaction details
+          </p>
         </div>
 
-        {/* Status Dropdown */}
-        <div>
-          <label className="block text-gray-700 font-semibold mb-2">
-            Status
-          </label>
-          <select
-            name="status"
-            value={form.status}
-            onChange={handleChange}
-            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="Pending">Pending</option>
-            <option value="Processing">Processing</option>
-            <option value="Completed">Completed</option>
-            <option value="Cancelled">Cancelled</option>
-          </select>
-        </div>
-      </form>
+        <form onSubmit={handleSubmit} className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <InputField
+              label="Customer Name"
+              name="customerName"
+              value={form.customerName}
+              onChange={handleChange}
+              required
+              icon={<User className="absolute left-3 top-2.5 text-gray-400" size={18} />}
+            />
+
+            <InputField
+              label="Product"
+              name="product"
+              value={form.product}
+              onChange={handleChange}
+              required
+              icon={<Package className="absolute left-3 top-2.5 text-gray-400" size={18} />}
+            />
+
+            <InputField
+              label="Quantity"
+              name="quantity"
+              type="number"
+              value={form.quantity}
+              onChange={handleChange}
+              min="1"
+              required
+              icon={<Hash className="absolute left-3 top-2.5 text-gray-400" size={18} />}
+            />
+
+            <InputField
+              label="Price (₹)"
+              name="price"
+              type="number"
+              value={form.price}
+              onChange={handleChange}
+              min="0"
+              step="0.01"
+              required
+              icon={<IndianRupee className="absolute left-3 top-2.5 text-gray-400" size={18} />}
+            />
+
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Order Status <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <select
+                  name="status"
+                  value={form.status}
+                  onChange={handleChange}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none"
+                  required
+                >
+                  <option value="Pending">Pending</option>
+                  <option value="Processing">Processing</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Cancelled">Cancelled</option>
+                </select>
+                <ClipboardList className="absolute left-3 top-2.5 text-gray-400" size={18} />
+                <ChevronLeft className="absolute right-3 top-2.5 text-gray-400 transform rotate-270" size={18} />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex justify-between items-center mt-8 pt-6 border-t">
+            <button
+              type="button"
+              onClick={() => router.push("/dashboard/sales-crm/selling/sales-orders")}
+              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 flex items-center"
+            >
+              <XCircle size={18} className="mr-2" /> Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center"
+            >
+              <Save size={18} className="mr-2" />
+              {loading ? "Saving..." : "Create Order"}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ChevronLeft, Save, XCircle, ClipboardCheck, AlertTriangle, User, FileText, Upload, CheckCircle } from "lucide-react";
 import InputField from "@/components/InputField";
-import { FaSave, FaUpload } from "react-icons/fa";
-import Image from "next/image";
 import UploadFile from "@/services/uploadFile";
 
 export default function AddInspection() {
@@ -34,14 +33,14 @@ export default function AddInspection() {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const uploadImage = async (fileBlob) => {
+  const uploadImage = async (file) => {
     try {
       setUploading(true);
       const timestamp = Date.now();
       const uniqueId = Math.random().toString(36).substring(2, 8);
-      const fileName = fileBlob.name.split(".")[0].replace(/\s+/g, "-");
+      const fileName = file.name.split(".")[0].replace(/\s+/g, "-");
       const imageFileName = `inspections/${fileName}-${uniqueId}-${timestamp}.png`;
-      const arrayBuffer = await fileBlob.arrayBuffer();
+      const arrayBuffer = await file.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
       const uploadResult = await UploadFile(buffer, imageFileName, "image");
       setForm((prev) => ({ ...prev, documentUrl: uploadResult }));
@@ -68,9 +67,7 @@ export default function AddInspection() {
       });
       const data = await res.json();
       if (res.ok) {
-        router.push(
-          "/dashboard/production-and-management/quality-control-inspection"
-        );
+        router.push("/dashboard/production-and-management/quality-control-inspection");
       } else {
         alert(data.error || "Failed to submit inspection");
       }
@@ -82,147 +79,188 @@ export default function AddInspection() {
   };
 
   return (
-    <div className="pb-6 w-full">
-      {/* Breadcrumb */}
-      <nav className="mb-4 text-gray-600">
+    <div className="p-4 md:p-6 w-full mx-auto">
+      {/* Breadcrumbs */}
+      <nav className="mb-4 text-gray-600 hidden md:block">
         <ol className="flex space-x-2 text-sm">
           <li>
             <button
-              onClick={() =>
-                router.push("/dashboard/production-and-management")
-              }
+              onClick={() => router.push("/dashboard")}
               className="hover:underline flex items-center"
             >
-              Production and Management
+              Home
             </button>
           </li>
           <li>/</li>
-          <li
-            className="hover:underline hover:cursor-pointer"
-            onClick={() =>
-              router.push(
-                "/dashboard/production-and-management/quality-control-inspection"
-              )
-            }
-          >
-            Quality Control & Inspections
+          <li>
+            <button
+              onClick={() => router.push("/dashboard/production-and-management")}
+              className="hover:underline flex items-center"
+            >
+              Production
+            </button>
           </li>
           <li>/</li>
-          <li className="font-semibold flex items-center">Add</li>
+          <li className="font-semibold flex items-center">New Inspection</li>
         </ol>
       </nav>
 
-      {/* Page Title and Save */}
+      {/* Page Header */}
       <div className="flex justify-between items-center mb-6 border-b pb-4">
-        <h1 className="text-4xl font-bold text-gray-800">
-          Add New Inspection
-        </h1>
-        <button
-          onClick={handleSubmit}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-200 flex items-center gap-2"
-        >
-          <FaSave className="pr-1" />
-          Save
-        </button>
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={() => router.push("/dashboard/production-and-management/quality-control-inspection")}
+            className="p-2 rounded-full hover:bg-gray-100"
+          >
+            <ChevronLeft size={20} />
+          </button>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
+            Quality Inspection
+          </h1>
+        </div>
       </div>
 
-      {/* Form */}
-      {loading ? (
-        <div className="flex justify-center items-center h-[200px]">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-600"></div>
+      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+        <div className="p-6 border-b">
+          <h2 className="text-xl font-semibold flex items-center">
+            <ClipboardCheck className="mr-2" size={20} />
+            Inspection Details
+          </h2>
+          <p className="text-gray-500 text-sm mt-1">
+            Record quality control checks and defect documentation
+          </p>
         </div>
-      ) : (
-        <form className="space-y-4 bg-white p-6 shadow rounded">
-          <InputField
-            label="Batch ID & Product Name"
-            name="batchId"
-            value={form.batchId}
-            onChange={handleChange}
-            required
-          />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+        <form onSubmit={handleSubmit} className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <InputField
+              label="Batch ID & Product"
+              name="batchId"
+              value={form.batchId}
+              onChange={handleChange}
+              required
+              icon={<ClipboardCheck className="absolute left-3 top-2.5 text-gray-400" size={18} />}
+            />
+
             <div>
-              <label className="block mb-1 font-semibold text-sm text-gray-700">
-                Inspection Status
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Inspection Status <span className="text-red-500">*</span>
               </label>
-              <select
-                name="inspectionStatus"
-                value={form.inspectionStatus}
-                onChange={handleChange}
-                className="w-full border px-4 py-2 rounded"
-                required
-              >
-                <option value="">Select Inspection Status</option>
-                <option value="passed">Passed</option>
-                <option value="failed">Failed</option>
-                <option value="rework needed">Rework Needed</option>
-              </select>
+              <div className="relative">
+                <select
+                  name="inspectionStatus"
+                  value={form.inspectionStatus}
+                  onChange={handleChange}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none"
+                  required
+                >
+                  <option value="">Select Status</option>
+                  <option value="passed">Passed</option>
+                  <option value="failed">Failed</option>
+                  <option value="rework needed">Rework Needed</option>
+                </select>
+                <AlertTriangle className="absolute left-3 top-2.5 text-gray-400" size={18} />
+                <ChevronLeft className="absolute right-3 top-2.5 text-gray-400 transform rotate-270" size={18} />
+              </div>
             </div>
+
             <div>
-              <label className="block mb-1 font-semibold text-sm text-gray-700">
-                Defect Type
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Defect Severity <span className="text-red-500">*</span>
               </label>
-              <select
-                name="defectType"
-                value={form.defectType}
+              <div className="relative">
+                <select
+                  name="defectType"
+                  value={form.defectType}
+                  onChange={handleChange}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none"
+                  required
+                >
+                  <option value="">Select Severity</option>
+                  <option value="minor">Minor</option>
+                  <option value="major">Major</option>
+                  <option value="critical">Critical</option>
+                </select>
+                <AlertTriangle className="absolute left-3 top-2.5 text-gray-400" size={18} />
+                <ChevronLeft className="absolute right-3 top-2.5 text-gray-400 transform rotate-270" size={18} />
+              </div>
+            </div>
+
+            <InputField
+              label="Assigned Inspector"
+              name="assignedTo"
+              value={form.assignedTo}
+              onChange={handleChange}
+              icon={<User className="absolute left-3 top-2.5 text-gray-400" size={18} />}
+            />
+
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Inspection Notes
+              </label>
+              <textarea
+                name="description"
+                value={form.description}
                 onChange={handleChange}
-                className="w-full border px-4 py-2 rounded"
-                required
-              >
-                <option value="">Select Defect Type</option>
-                <option value="minor">Minor</option>
-                <option value="major">Major</option>
-                <option value="critical">Critical</option>
-              </select>
+                rows="4"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Detailed inspection findings"
+              />
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Evidence Documentation
+              </label>
+              <div className="border border-dashed border-gray-300 rounded-lg p-6 text-center hover:bg-gray-50 transition-colors">
+                <label className="cursor-pointer flex flex-col items-center space-y-2">
+                  {form.documentUrl ? (
+                    <>
+                      <CheckCircle className="w-8 h-8 text-green-600" />
+                      <span className="text-sm text-gray-600">Document uploaded</span>
+                      <p className="text-xs text-gray-500 truncate">
+                        {form.documentUrl.split('/').pop()}
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-8 h-8 text-blue-600" />
+                      <span className="text-sm text-gray-600">
+                        {uploading ? "Uploading..." : "Click to upload evidence"}
+                      </span>
+                      <span className="text-xs text-gray-500">PNG, JPG up to 5MB</span>
+                    </>
+                  )}
+                  <input
+                    type="file"
+                    className="hidden"
+                    onChange={handleFileUpload}
+                    accept="image/*"
+                  />
+                </label>
+              </div>
             </div>
           </div>
-          <InputField
-            label="Assigned Inspector & Workstation"
-            name="assignedTo"
-            value={form.assignedTo}
-            onChange={handleChange}
-          />
-          <InputField
-            label="Description"
-            name="description"
-            value={form.description}
-            onChange={handleChange}
-          />
 
-          {form.documentUrl && (
-            <div className="text-blue-600 text-sm mb-2">
-              <Image
-                src={form.documentUrl}
-                alt="Uploaded inspection image"
-                width={100}
-                height={100}
-              />
-              Image uploaded successfully
-            </div>
-          )}
-
-          <div className="flex flex-col items-center">
-            <label className="block text-gray-700 font-semibold mb-2">
-              Document Upload
-            </label>
-            <label className="block border border-dashed border-gray-400 p-10 cursor-pointer rounded-lg hover:bg-gray-100 transition duration-200 text-center w-full">
-              <FaUpload className="w-10 h-10 mx-auto mb-2 text-blue-600" />
-              {form.documentUrl
-                ? "Image uploaded"
-                : "Click to upload an image"}
-              <input
-                type="file"
-                name="image"
-                className="hidden"
-                onChange={(e) => handleFileUpload(e)}
-              />
-            </label>
-            {uploading && (
-              <div className="text-blue-600 text-sm mt-2">Uploading...</div>
-            )}
+          <div className="flex justify-between items-center mt-8 pt-6 border-t">
+            <button
+              type="button"
+              onClick={() => router.push("/dashboard/production-and-management/quality-control-inspection")}
+              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 flex items-center"
+            >
+              <XCircle size={18} className="mr-2" /> Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center"
+            >
+              <Save size={18} className="mr-2" />
+              {loading ? "Submitting..." : "Save Inspection"}
+            </button>
           </div>
         </form>
-      )}
+      </div>
     </div>
   );
 }
